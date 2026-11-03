@@ -6,11 +6,11 @@
   "author": "Ultronen",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ultronen/dsh-liquid-glass.git"
+    "url": "git+https://github.com/Ultroncn/dsh-liquid-glass.git"
   },
-  "homepage": "https://github.com/Ultronen/dsh-liquid-glass",
+  "homepage": "https://github.com/Ultroncn/dsh-liquid-glass",
   "bugs": {
-    "url": "https://github.com/Ultronen/dsh-liquid-glass/issues"
+    "url": "https://github.com/Ultroncn/dsh-liquid-glass/issues"
   },
   "keywords": [
     "deepseek-harness",
