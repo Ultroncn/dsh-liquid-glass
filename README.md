@@ -3,7 +3,7 @@
 English | [中文](README.zh.md)
 
 [![npm](https://img.shields.io/npm/v/dsh-liquid-glass?logo=npm)](https://www.npmjs.com/package/dsh-liquid-glass)
-[![license](https://img.shields.io/github/license/Ultronen/dsh-liquid-glass)](LICENSE)
+[![license](https://img.shields.io/github/license/Ultroncn/dsh-liquid-glass)](LICENSE)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b68ff)](https://github.com/deepseek-ai/deepseek-harness)
 
 **Liquid glass for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — one toggle, and the whole interface turns to glass.

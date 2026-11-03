@@ -3,7 +3,7 @@
 [English](README.md) | 中文
 
 [![npm](https://img.shields.io/npm/v/dsh-liquid-glass?logo=npm)](https://www.npmjs.com/package/dsh-liquid-glass)
-[![license](https://img.shields.io/github/license/Ultronen/dsh-liquid-glass)](LICENSE)
+[![license](https://img.shields.io/github/license/Ultroncn/dsh-liquid-glass)](LICENSE)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b68ff)](https://github.com/deepseek-ai/deepseek-harness)
 
 **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的液态玻璃**——点一下，整个界面通透起来。
