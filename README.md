@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 **Liquid glass for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — one toggle, and the whole interface turns to glass.
 
-Translucency built for DeepSeek Harness: the page base, cards, panels and chat bubbles all go see-through over your own background image, with a single slider for exactly how much glass you want. Nothing else — the best tools are the simple ones.
+Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. The working-tree features below are unreleased; the package version has not changed.
 
 ## Install
 
@@ -26,14 +26,19 @@ Open **Settings → General** — a **Liquid Glass** row appears. It is ON by de
 
 ## What you get
 
-- **Full-shell transparency**: every surface the shell paints — page base, cards, panels, sidebar, chat bubbles, code blocks — goes translucent through the official ThemeRuntime token-override layer. Neutral white on the light scheme, near-black on dark.
-- **One master transparency slider** (3%–95%): higher values reveal more of the background.
-- **Full-page custom background**: upload a local image (auto-compressed for localStorage) or paste a URL. It spans the whole page behind the glass.
+- **Theme surface transparency** through the official ThemeRuntime tokens, with a 3%–95% transparency slider.
+- **Regular, Clear, and Frost presets**, plus cool white, warm gray, and ink tints. Manual transparency fine-tunes the selected preset.
+- **Scoped menu frost** with an independent switch, a settings-card rim color, and a material preview with an inset highlight. Host filter placement stays unchanged.
+- **Wallpaper controls**: cover/contain/fill, nine positions, brightness 20%–200%, and manual dim 0%–60%. Bright local or same-origin images automatically receive at least 35% dim; cross-origin links use manual dim only. Large static uploads are compressed; GIF data is preserved.
+- **System accessibility response**: reduced transparency or increased contrast selects effective Frost material and limits transparency to 50%, without overwriting saved preferences.
+- **Keyboard toggle**: Ctrl/Cmd+Shift+G through the host shortcut service. Change or remove “Toggle Liquid Glass” in the host Keyboard shortcuts settings. Linux Web starts unbound; conflicting defaults fall back to an unbound command.
+
+Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). Live DSH regression testing remains outstanding. Existing screenshots show the older interface.
 
 ## Privacy and compatibility
 
 - Settings and uploaded backgrounds stay in this browser's `localStorage`; the plugin has no server component and sends no telemetry.
-- The UI integrates through DeepSeek Harness's public client runtime, locale, slot and theme APIs.
+- The UI integrates through DeepSeek Harness's public client runtime, locale, slot, theme, and shortcut APIs. Shortcut bindings use host-managed device-local storage (localStorage on Web; keybindings.json on Desktop).
 - Light and dark color schemes are supported. A DSH restart is required once after installation so the client bundle can be loaded.
 
 ## Verify from source
