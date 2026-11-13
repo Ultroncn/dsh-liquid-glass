@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-11-13
+
+- Extend Reading protection to official surface tokens: opaque dialogs/overlays and at least 94% opacity for content, code and menus, while retaining base/sidebar transparency. Protection is available without a background and can be disabled.
+- Add optional separate light/dark appearance settings using the host resolved color scheme, with atomic persistence and safe migration from existing preferences. Media remains shared; Reset affects only the active scheme when separation is enabled.
+- Add Motion / Still frame for video backgrounds. Still mode retains the frame, loads the first frame on restart, and respects existing user/system pause conditions.
+- Refresh bilingual documentation and four actual-host marketplace screenshots.
+- Validation: 289 smoke assertions against the official 0.2.2-rc.2 host contract, independent review, and packed-package Web verification on macOS, including persisted light/dark choices, draft preservation and a decoded paused first frame after reload. CPU/GPU, power savings and cross-platform codec coverage are not claimed.
+
 ## 0.3.0 — 2026-11-13
 
 - Replace the standalone text preview with three selectable material cards built from official buttons.
