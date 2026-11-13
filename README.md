@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 **Liquid glass for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — one toggle, and the whole interface turns to glass.
 
-Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. The working-tree features below are unreleased; the package version has not changed.
+Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. The working-tree features below shipped in 0.2.0 (npm latest 0.2.0); see the CHANGELOG.
 
 ## Install
 
@@ -33,7 +33,7 @@ Open **Settings → General** — a **Liquid Glass** row appears. It is ON by de
 - **System accessibility response**: reduced transparency or increased contrast selects effective Frost material and limits transparency to 50%, without overwriting saved preferences.
 - **Keyboard toggle**: Ctrl/Cmd+Shift+G through the host shortcut service. Change or remove “Toggle Liquid Glass” in the host Keyboard shortcuts settings. Linux Web starts unbound; conflicting defaults fall back to an unbound command.
 
-Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). Live DSH regression testing remains outstanding. Existing screenshots show the older interface.
+Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). Live DSH regression testing passed 7/7 on host 0.2.2-rc.2 (2026-11-13); full regression coverage is still to be expanded. Existing screenshots show the older interface.
 
 ## Privacy and compatibility
 
