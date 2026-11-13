@@ -38,6 +38,7 @@ const liveLayers = new Map();
 const eventHandlers = [];
 const effectCleanups = [];
 let publishThemeEvents = false;
+let activeScheme = 'light';
 const emitThemeChange = () => { for (const handler of eventHandlers) handler(); };
 const mediaQueries = new Map();
 function mediaQuery(query) {
@@ -275,7 +276,7 @@ const ctxMock = {
   theme: {
     register: (t) => { ctxCalls.register.push(t); return () => {}; },
     setTheme: () => {},
-    getTheme: () => ({ preference: 'system', revision: 1, active: 'light' }),
+    getTheme: () => ({ preference: 'system', revision: 1, active: { id: 'custom', colorScheme: activeScheme } }),
     overrideTokens: (source, overrides) => {
       // Preserve the original eight-token layer assertions; the new material
       // layer has separate coverage below and is tracked in the same live map.
@@ -347,7 +348,7 @@ const expectedPackages = Object.values(serviceProviders);
 assert(JSON.stringify(manifest.dsh.client.inject) === JSON.stringify(expectedPackages), 'real manifest inject declares exactly the installed locale and theme packages');
 const expectedServices = ['slots', ...Object.keys(serviceProviders).filter((service) => manifest.dsh.client.inject.includes(serviceProviders[service]))];
 assert(JSON.stringify(factoryResult.inject) === JSON.stringify(expectedServices), 'Cordis service injection matches the real manifest providers and shell slots service');
-assert(manifest.version === '0.3.0' && manifest.dsh.client.platform === 'web' && manifest.dsh.client.immediately === true, 'release version 0.3.0 and web activation flags are correct');
+assert(manifest.version === '0.4.0' && manifest.dsh.client.platform === 'web' && manifest.dsh.client.immediately === true, 'release version 0.3.0 and web activation flags are correct');
 assert(JSON.stringify([...requestedModules].sort()) === JSON.stringify(Object.keys(moduleTable).sort()), 'factory imports only the verified React, JSX, and client-store platform seeds');
 for (const missing of ['@deepseek-ai/dsh-client-runtime/client', '@deepseek-ai/dsh-client-store/client', 'unknown-package']) {
   let rejected = false;
@@ -629,7 +630,10 @@ assert(currentCss().includes('inset 0 1px 0') && currentCss().includes('border:1
 assert(material()['--dsw-alias-settings-card-stroke'].light !== material()['--dsw-alias-settings-card-stroke'].dark, 'host settings-card rim extends its existing light/dark stroke token');
 assert(Object.keys(material()).sort().join('|') === ['--dsw-alias-settings-card-stroke', '--dsw-menu-backdrop-filter', '--dsw-menu-surface-fill', '--dsw-specific-menu'].sort().join('|'), 'material layer uses only locally verified host tokens, with no invented per-message API');
 currentActions.setAlpha(95);
-assert(material()['--dsw-menu-surface-fill'].light.endsWith(', 0.55)') && material()['--dsw-specific-menu'].dark.endsWith(', 0.55)'), 'menu fill has a 0.55 opacity floor at maximum shell transparency');
+assert(material()['--dsw-menu-surface-fill'].light.endsWith(', 0.94)') && material()['--dsw-specific-menu'].dark.endsWith(', 0.94)'), 'reading protection raises menu fill to 0.94 at maximum shell transparency');
+currentActions.setOption('autoDim', false);
+assert(material()['--dsw-menu-surface-fill'].light.endsWith(', 0.55)'), 'unprotected menus retain the existing 0.55 opacity floor');
+currentActions.setOption('autoDim', true);
 
 console.log('\n[14] wallpaper fit, nine positions, brightness, and manual dim');
 currentActions.setWallpaper('https://remote.example/wallpaper.jpg');
@@ -987,6 +991,64 @@ reload(); currentActions.setGlass(true);
 currentActions.previewBackground({ kind: 'image', url: 'https://example.com/new-runtime-draft.jpg' });
 stoppedActions.previewBackground(null);
 assert(wallpaperLayer()?.style.backgroundImage.includes('new-runtime-draft.jpg'), 'an old runtime action cannot discard the new runtime draft');
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
+console.log('\n[23] Reading protection and appearance profiles');
+reload(); currentActions.setGlass(true); currentActions.resetAppearance(); currentActions.setAlpha(85);
+const layerAlpha = key => Number(/, ([0-9.]+)\)/.exec(ctxCalls.overrideTokens.at(-1).overrides[key].light)?.[1]);
+assert(baseAlpha() === 0.15 && layerAlpha('--dsw-alias-bg-layer-1') === 0.94 && layerAlpha('--dsw-alias-markdown-code-block') === 0.94, 'reading protection preserves base transparency but shields content and code');
+assert(layerAlpha('--dsw-alias-bg-layer-2') === 1 && layerAlpha('--dsw-alias-bg-overlay') === 1, 'protected dialogs are opaque so underlying text cannot bleed through');
+currentActions.setOption('autoDim', false);
+assert(layerAlpha('--dsw-alias-bg-layer-1') === 0.15, 'turning protection off restores the selected content transparency');
+const PROFILE_KEY = 'dsh-liquid-glass:appearances';
+assert(typeof currentActions.setSeparateAppearance === 'function', 'separate appearance action exists');
+if (currentActions.setSeparateAppearance) {
+  currentActions.setOption('tint', 'warm');
+  assert(currentActions.setSeparateAppearance(true), 'enabling profiles copies the current appearance');
+  activeScheme = 'dark'; emitThemeChange();
+  assert(currentStore.getSnapshot().options.scheme === 'dark' && currentStore.getSnapshot().alpha === 0.15 && currentStore.getSnapshot().options.tint === 'warm', 'custom dark themes use colorScheme and initially retain existing settings');
+  currentActions.setPreset('frost'); currentActions.setOption('tint', 'cool');
+  activeScheme = 'light'; emitThemeChange();
+  assert(currentStore.getSnapshot().alpha === 0.15 && currentStore.getSnapshot().options.tint === 'warm', 'dark edits leave light appearance intact');
+  const profilesBefore = storageMap.get(PROFILE_KEY);
+  const originalSet = windowMock.localStorage.setItem;
+  windowMock.localStorage.setItem = (key, value) => { if (key === PROFILE_KEY) throw new Error('Quota'); originalSet(key, value); };
+  assert(!currentActions.setPreset('clear') && storageMap.get(PROFILE_KEY) === profilesBefore && currentStore.getSnapshot().alpha === 0.15, 'profile write failure preserves both profiles and rendered settings');
+  assert(!currentActions.setSeparateAppearance(false) && currentStore.getSnapshot().options.separateAppearance, 'failed profile transition leaves separation enabled');
+  windowMock.localStorage.setItem = originalSet;
+  currentActions.setGlass(false); activeScheme = 'dark'; emitThemeChange();
+  assert(currentStore.getSnapshot().options.scheme === 'dark' && currentStore.getSnapshot().alpha === 0.78 && liveLayers.size === 0, 'scheme switching while disabled updates preferences without applying effects');
+  reload(); currentActions.setGlass(true);
+  assert(currentStore.getSnapshot().alpha === 0.78 && currentStore.getSnapshot().options.tint === 'cool', 'scheme-specific appearance survives reload');
+  currentActions.resetAppearance(); activeScheme = 'light'; emitThemeChange();
+  assert(currentStore.getSnapshot().alpha === 0.15, 'reset changes only the active scheme');
+  assert(currentActions.setSeparateAppearance(false), 'separate profiles can be disabled');
+  activeScheme = 'dark'; emitThemeChange();
+  assert(currentStore.getSnapshot().alpha === 0.15 && !currentStore.getSnapshot().options.separateAppearance, 'disabling uses current appearance in both schemes');
+  for (const invalid of ['{broken', 'null', '{"version":1,"separate":true}', '{"version":1,"separate":true,"light":null,"dark":42}']) {
+    storageMap.set(PROFILE_KEY, invalid); reload();
+    assert(Number.isFinite(currentStore.getSnapshot().alpha) && !!currentStore.getSnapshot().options.tint, 'invalid profile record falls back safely: ' + invalid);
+  }
+  storageMap.delete(PROFILE_KEY); activeScheme = 'light'; reload();
+}
+console.log('\n[24] Still video mode');
+currentActions.resetAppearance(); currentActions.setGlass(true); currentActions.setVideoPaused(false);
+await currentActions.setVideo(videoFile); await flushVideo();
+assert(currentActions.setOption('videoMode', 'still'), 'still video mode is a validated appearance option');
+await flushVideo();
+assert(currentVideo()?.paused && currentStore.getSnapshot().video.still, 'still mode pauses the visible video and exposes its reason');
+currentActions.setVideoPaused(false); await flushVideo();
+assert(currentVideo()?.paused, 'a play action cannot bypass still mode');
+reload(); await flushVideo();
+assert(currentVideo()?.paused && currentStore.getSnapshot().options.videoMode === 'still', 'still mode survives reload without starting playback');
+documentMock.hidden = true; for (const listener of visibilityListeners) listener();
+documentMock.hidden = false; for (const listener of visibilityListeners) listener(); await flushVideo();
+assert(currentVideo()?.paused, 'visibility changes cannot resume still mode');
+currentActions.setVideoPaused(true); currentActions.setOption('videoMode', 'motion'); await flushVideo();
+assert(currentVideo()?.paused, 'returning to motion retains an explicit user pause');
+currentActions.setVideoPaused(false); await flushVideo();
+assert(!currentVideo()?.paused, 'motion playback resumes when no pause condition remains');
+assert(!currentActions.setOption('videoMode', 'unknown'), 'invalid motion modes are rejected');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);

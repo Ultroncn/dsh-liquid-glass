@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 **Theme backgrounds for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — translucent surfaces with image or local video backgrounds.
 
-Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.3.0**. A community plugin that reuses the host’s official controls where available.
+Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.4.0**. A community plugin that reuses the host’s official controls where available.
 
 ## Install
 
@@ -18,21 +18,25 @@ dsh plugin --profile web add dsh-liquid-glass
 
 Run the command in a terminal. In the app’s Add plugin field, enter only `dsh-liquid-glass`.
 
-Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.3.0` in the app’s plugin field, not the full terminal command.
+Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.4.0` in the app’s plugin field, not the full terminal command.
 
 ## Screenshots
 
-Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original local demonstration media. The light settings view uses 3% transparency; the dark background view uses the Clear preset.
+Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original local demonstration media. Reading protection is enabled. Light appearance uses Clear (65% transparency); dark appearance uses Frost (22%) with a still video frame.
 
-![Collapsed entry below Appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.3.0/assets/screenshots/v0.3.0/01-settings-collapsed.jpg)
+![Collapsed entry below Appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/01-settings-collapsed.jpg)
 
-![Material cards and image background settings](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.3.0/assets/screenshots/v0.3.0/02-settings-background.jpg)
+![Material cards and background settings](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/02-settings-background.jpg)
 
-![Dark background appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.3.0/assets/screenshots/v0.3.0/03-dark-background.jpg)
+![Dark background appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/03-dark-background.jpg)
 
-![Video background and playback control](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.3.0/assets/screenshots/v0.3.0/04-video-background.jpg)
+![Separate appearances, reading protection and still video](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/04-video-background.jpg)
 
 ## What you get
+
+- **Reading protection**: enabled by default, now keeps dialogs and overlay surfaces opaque and content/code/menu surfaces at least 94% opaque. Base and sidebar transparency remain adjustable. Turn it off in Advanced for the previous fully translucent style. It also retains automatic background dimming.
+- **Separate light/dark settings**: optionally enable in Advanced. Both start from your current appearance; subsequent edits and Reset affect only the active scheme, including system and custom theme switching. Disabling applies the current appearance to both. Background files and the manual video pause are shared.
+- **Still video frame**: choose Motion or Still frame in Advanced after saving a video. Still frame retains the current frame, or loads the first frame after reopening. It keeps the video element loaded; no CPU/GPU or battery-saving claim is made.
 
 - **Host controls**: reuse Switch, Button, Input, Checkbox, Menu, Modal and chevron icons. No public settings-row or slider component exists; a small layout adapter handles these without private CSS classes.
 - **Local video backgrounds**: select MP4/WebM up to 100 MiB, with a browser-supported codec. Validated files preview immediately and are saved locally only after Save; playback loops muted; pause, resume and removal are available. Hidden pages and reduced-motion preferences pause playback. No video URLs, audio or playlists.
@@ -47,7 +51,7 @@ Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original 
 - **System accessibility response**: reduced transparency or increased contrast selects effective Frost material and limits transparency to 50%, without overwriting saved preferences.
 - **Keyboard toggle**: Ctrl/Cmd+Shift+G through the host shortcut service. Change or remove “Toggle Liquid Glass” in the host Keyboard shortcuts settings. Linux Web starts unbound; conflicting defaults fall back to an unbound command.
 
-Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [theme background validation](docs/theme-background-validation.md) for this change.
+Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [0.4.0 validation](docs/v0.4.0-validation.md) for this release.
 
 ## Privacy and compatibility
 
@@ -55,7 +59,7 @@ The host has no public settings leave-guard API. Unsaved-change protection uses 
 
 - Preferences and images use origin-local `localStorage`; video Blobs use IndexedDB. Media is not shared across browsers or origins, and clearing site data deletes saved videos; the plugin has no server component and sends no telemetry.
 - The UI integrates through DeepSeek Harness's public client runtime, locale, slot, theme, and shortcut APIs. Shortcut bindings use host-managed device-local storage (localStorage on Web; keybindings.json on Desktop).
-- Light and dark color schemes are supported. A DSH restart is required once after installation so the client bundle can be loaded.
+- Light and dark color schemes are supported. Appearance profiles use a versioned local record; legacy settings remain intact, but downgrading to 0.3.x restores those older values. A DSH restart is required once after installation so the client bundle can be loaded.
 
 ## Verify from source
 
