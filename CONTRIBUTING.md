@@ -15,8 +15,8 @@
 
 ## 测试 / Tests
 
-- Run `npm test` (`node test/smoke.test.mjs`) before opening a PR and make sure it passes.
-- 开 PR 前跑 `npm test`（即 `node test/smoke.test.mjs`），确认通过。
+- Run `node --test test/*.test.mjs` before opening a PR and make sure it passes.
+- 开 PR 前跑 `node --test test/*.test.mjs`，确认通过。
 - If your change affects observable behaviour, add or update tests for it.
 - 改动影响可观察行为时，请补充或更新测试。
 
