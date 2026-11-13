@@ -5,6 +5,7 @@
  * Run: node test/smoke.test.mjs
  */
 import { readFileSync } from 'node:fs';
+import { indexedDB } from 'fake-indexeddb';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -25,6 +26,10 @@ const headChildren = [];
 const bodyChildren = [];
 const canvasCalls = [];
 const pendingImages = [];
+const visibilityListeners = new Set();
+let videoDecodeFails = false;
+let videoPlayBlocked = false;
+const revokedVideoURLs = [];
 const compressedDataUrl = 'data:image/jpeg;base64,compressed';
 let samplePixels = new Uint8ClampedArray([255, 255, 255, 255]);
 let sampleError = false;
@@ -96,6 +101,7 @@ function makeElement(tag) {
     attrs: {},
     textContent: '',
     setAttribute(k, v) { this.attrs[k] = v; },
+    removeAttribute(k) { delete this.attrs[k]; },
     appendChild(c) { this.children.push(c); return c; },
     prepend(c) { this.children.unshift(c); return c; },
     remove() {
@@ -107,6 +113,13 @@ function makeElement(tag) {
     },
     contains() { return true; },
   };
+  if (tag === 'video') {
+    Object.assign(el, { videoWidth: 640, paused: true,
+      pause() { this.paused = true; }, load() {},
+      play() { if (videoPlayBlocked) return Promise.reject(new DOMException('Blocked', 'NotAllowedError')); this.paused = false; return Promise.resolve(); },
+    });
+    Object.defineProperty(el, 'src', { set(value) { this.source = value; queueMicrotask(() => { videoDecodeFails ? this.onerror?.() : this.onloadeddata?.(); }); } });
+  }
   if (tag === 'canvas') {
     el.getContext = () => ({
       drawImage: (...args) => canvasCalls.push({ args }),
@@ -125,6 +138,9 @@ function makeElement(tag) {
 }
 
 const documentMock = {
+  hidden: false,
+  addEventListener(type, listener) { if (type === "visibilitychange") visibilityListeners.add(listener); },
+  removeEventListener(type, listener) { if (type === "visibilitychange") visibilityListeners.delete(listener); },
   createElement: (tag) => makeElement(tag),
   head: { appendChild: (c) => headChildren.push(c) },
   body: {
@@ -138,7 +154,9 @@ const documentMock = {
 // Only seeds actually used by this plugin. Verified in the installed official
 // 0.2.2-rc.2 web frontend's getStaticModules(), via its shipped source map.
 // Package directories / boot entries alone do not enumerate platform seeds.
+const officialUI = Object.fromEntries(['Switch', 'Button', 'Input', 'Checkbox', 'Menu', 'SegmentedControl', 'IconChevronDownOutlineRegular', 'IconChevronRightOutlineRegular', 'Modal', 'IconPlusOutlineRegular', 'IconRefreshOutlineRegular', 'IconTrashOutlineRegular', 'IconPlayOutlineRegular', 'IconPauseOutlineRegular'].map(name => [name, Object.defineProperty((props) => ({ type: name, props }), 'name', { value: name })]));
 const moduleTable = {
+  '@deepseek-ai/dsh-client-ui-primitives': officialUI,
   'react/jsx-runtime': {
     jsx: (type, props) => ({ type, props }),
     jsxs: (type, props) => ({ type, props }),
@@ -159,10 +177,14 @@ const moduleTable = {
       const previous = render.hooks[index];
       if (!previous || deps.some((value, i) => !Object.is(value, previous[i]))) {
         render.hooks[index] = deps;
-        render.effects.push(effect);
+        render.effects.push(() => { render.cleanups[index]?.(); render.cleanups[index] = effect(); });
       }
     },
-    useRef: (v) => ({ current: v }),
+    useRef: (v) => {
+      const render = activeRender, index = render.cursor++;
+      return render.hooks[index] ??= { current: v };
+    },
+    useId: () => 'glass-test',
     Fragment: Symbol('Fragment'),
   },
   '@deepseek-ai/dsh-client-store': {
@@ -201,6 +223,8 @@ function requireFromHostTable(name) {
 
 let loadedModule = null;
 const windowMock = {
+  indexedDB, crypto: globalThis.crypto,
+  URL: { createObjectURL: URL.createObjectURL, revokeObjectURL(url) { revokedVideoURLs.push(url); URL.revokeObjectURL(url); } },
   location: { href: 'https://dsh.local/app', origin: 'https://dsh.local' },
   matchMedia: mediaQuery,
   __ModuleLoader__: {
@@ -218,8 +242,8 @@ const windowMock = {
 // Render the real settings component and retain its hook state across events.
 let activeRender;
 function mountComponent(component, getProps) {
-  const render = { hooks: [] };
-  return () => {
+  const render = { hooks: [], cleanups: [] };
+  const draw = () => {
     let tree;
     do {
       Object.assign(render, { cursor: 0, effects: [], updated: false });
@@ -230,6 +254,8 @@ function mountComponent(component, getProps) {
     } while (render.updated);
     return tree;
   };
+  draw.unmount = () => { for (const cleanup of render.cleanups) cleanup?.(); };
+  return draw;
 }
 
 function findNode(tree, predicate) {
@@ -321,7 +347,7 @@ const expectedPackages = Object.values(serviceProviders);
 assert(JSON.stringify(manifest.dsh.client.inject) === JSON.stringify(expectedPackages), 'real manifest inject declares exactly the installed locale and theme packages');
 const expectedServices = ['slots', ...Object.keys(serviceProviders).filter((service) => manifest.dsh.client.inject.includes(serviceProviders[service]))];
 assert(JSON.stringify(factoryResult.inject) === JSON.stringify(expectedServices), 'Cordis service injection matches the real manifest providers and shell slots service');
-assert(manifest.version === '0.2.0' && manifest.dsh.client.platform === 'web' && manifest.dsh.client.immediately === true, 'version 0.2.0 and web activation flags are preserved');
+assert(manifest.version === '0.3.0' && manifest.dsh.client.platform === 'web' && manifest.dsh.client.immediately === true, 'release version 0.3.0 and web activation flags are correct');
 assert(JSON.stringify([...requestedModules].sort()) === JSON.stringify(Object.keys(moduleTable).sort()), 'factory imports only the verified React, JSX, and client-store platform seeds');
 for (const missing of ['@deepseek-ai/dsh-client-runtime/client', '@deepseek-ai/dsh-client-store/client', 'unknown-package']) {
   let rejected = false;
@@ -355,7 +381,7 @@ assert(rowMeta.name === 'settings.general.item', 'row lands in Settings → Gene
 assert(rowMeta.locale === 'settings.liquid-glass', 'row carries the locale namespace');
 assert(ctxCalls.localeRegister.length === 1, 'locale dictionaries registered once');
 const zhDict = ctxCalls.localeRegister[0].dicts.zh;
-assert(zhDict['row.title'] === '液态玻璃', 'zh title is 液态玻璃');
+assert(zhDict['row.title'] === '主题背景', 'zh title is 主题背景');
 assert(!('theme.paper' in zhDict), 'no leftover theme-catalog strings in the dictionary');
 
 console.log('\n[5] user actions — toggle off');
@@ -425,7 +451,18 @@ for (const locale of ['zh', 'en']) {
 }
 const t = (key) => dictionaries.en[key] ?? key;
 const rowComponent = ctxCalls.slotRegister.at(-1).component;
-const row = rowComponent({ t, useStore: (select) => select(currentStore.getSnapshot()), ...currentActions });
+const mountRow = mountComponent(rowComponent, () => ({ t, useStore: (select) => select(currentStore.getSnapshot()), ...currentActions }));
+let row = mountRow();
+console.log('\n[native settings] compact official controls');
+assert(requestedModules.has('@deepseek-ai/dsh-client-ui-primitives'), 'uses the official host UI primitives');
+assert(!!findNode(row, n => n.props?.label === t('row.title') && n.type?.name === 'Switch'), 'master switch uses the official named Switch');
+assert(!!findNode(row, n => n.props?.children === t('row.description')), 'stable product description is visible even when off');
+assert(!findNode(row, n => n.type?.name === 'Slider'), 'General settings does not expand appearance sliders');
+const configure = findNode(row, n => n.type?.name === 'Expander' && n.props.label === t('row.configure'));
+assert(!!configure && configure.props.open === false, 'settings use an initially collapsed inline disclosure');
+assert(ctxCalls.slotRegister.at(-1).meta.order === 10.5, 'settings sit after Appearance (10) and before Font size (11)');
+if (configure) { configure.props.onClick(); row = mountRow(); }
+
 const section = findNode(row, (node) => node.type?.name === 'WallpaperSection');
 const renderWallpaper = mountComponent(section.type, () => ({ ...section.props, url: currentStore.getSnapshot().wallpaper }));
 let wallpaperTree = renderWallpaper();
@@ -434,11 +471,11 @@ const upload = (file) => {
   wallpaperTree = renderWallpaper();
 };
 const save = () => {
-  findNode(wallpaperTree, (node) => node.type === 'button' && node.props.children === t('wallpaper.save')).props.onClick();
+  findNode(wallpaperTree, (node) => node.type === officialUI.Button && node.props.children === t('wallpaper.save')).props.onClick();
   wallpaperTree = renderWallpaper();
 };
-const inlineError = (key) => !!findNode(wallpaperTree, (node) => node.type === 'div' && node.props.children === t(key) && node.props.style?.color === '#e5484d');
-const previewHas = (value) => !!findNode(wallpaperTree, (node) => node.props?.style?.backgroundImage === `url("${value}")`);
+const inlineError = (key) => !!findNode(wallpaperTree, (node) => node.type === 'div' && node.props.children === t(key) && node.props.role === 'alert');
+const previewHas = (value) => !!findNode(wallpaperTree, (node) => node.type === 'img' && node.props?.src === value);
 // A two-frame GIF fixture; the mocked decoder checks control flow, not playback.
 const gifDataUrl = 'data:image/gif;base64,R0lGODlhAQABAIEAAAAAAP///////////yH/C05FVFNDQVBFMi4wAwEAAAAh+QQICgAAACwAAAAAAQABAAAIBAABBAQAIfkECAoAAAAsAAAAAAEAAQCB/wAA////////CAQAAQQEADs=';
 const gifFile = { type: 'image/gif', dataUrl: gifDataUrl };
@@ -507,31 +544,31 @@ save();
 assert(inlineError('wallpaper.saveFailed'), 'failed local wallpaper save shows the inline error');
 assert(storageMap.get(WALLPAPER_KEY) === savedWallpaper && currentStore.getSnapshot().wallpaper === savedWallpaper && currentStore.getSnapshot().revision === savedRevision, 'failed save leaves persisted wallpaper and store revision unchanged');
 assert(bodyChildren.length === previousBodyCount && !previousElement.removed && previousElement.style.backgroundImage === previousBackground, 'failed save does not apply or replace the wallpaper layer');
-const urlInput = findNode(wallpaperTree, (node) => node.type === 'input' && node.props.placeholder === t('wallpaper.urlPlaceholder'));
+findNode(wallpaperTree, node => node.type === officialUI.Button && node.props.children === t('wallpaper.link')).props.onClick();
+wallpaperTree = renderWallpaper();
+const urlInput = findNode(wallpaperTree, (node) => node.type === officialUI.Input && node.props.placeholder === t('wallpaper.urlPlaceholder'));
 urlInput.props.onChange({ target: { value: 'https://example.com/replacement.jpg' } });
 wallpaperTree = renderWallpaper();
-save();
+findNode(wallpaperTree, node => node.type === officialUI.Button && node.props.children === t('wallpaper.preview')).props.onClick();
 finishImage();
 wallpaperTree = renderWallpaper();
+save();
 assert(inlineError('wallpaper.saveFailed'), 'failed remote wallpaper save also shows the inline error after URL validation');
 windowMock.localStorage.setItem = originalSetItem;
 save();
-finishImage();
 wallpaperTree = renderWallpaper();
 assert(storageMap.get(WALLPAPER_KEY) === 'https://example.com/replacement.jpg' && currentStore.getSnapshot().wallpaper === 'https://example.com/replacement.jpg' && !inlineError('wallpaper.saveFailed'), 'retry succeeds and clears the save error once storage works');
 const originalRemoveItem = windowMock.localStorage.removeItem;
 windowMock.localStorage.removeItem = () => { throw new DOMException('Storage blocked', 'SecurityError'); };
-findNode(wallpaperTree, (node) => node.type === 'button' && node.props.children === t('wallpaper.remove')).props.onClick();
+findNode(wallpaperTree, (node) => node.type === officialUI.Button && node.props['aria-label'] === t('wallpaper.remove')).props.onClick();
 wallpaperTree = renderWallpaper();
 save();
 assert(inlineError('wallpaper.saveFailed') && currentStore.getSnapshot().wallpaper === 'https://example.com/replacement.jpg', 'failed wallpaper removal reports an inline error and preserves the applied value');
 windowMock.localStorage.removeItem = originalRemoveItem;
 
-console.log('\n[12] Toggle style and slider contract');
-const toggle = findNode(row, (node) => node.type?.name === 'Toggle');
-const checkedToggle = toggle.type({ checked: true, onChange() {} });
-const uncheckedToggle = toggle.type({ checked: false, onChange() {} });
-assert(checkedToggle.props.style.border === '1px solid transparent' && uncheckedToggle.props.style.border === '1px solid var(--dsw-alias-border-l2)', 'Toggle keeps its conditional border in both states');
+console.log('\n[12] Official switch and named slider contract');
+const toggle = findNode(row, node => node.type === officialUI.Switch);
+assert(toggle.props.label === t('row.title'), 'official Switch receives the localized accessible name');
 const slider = findNode(row, (node) => node.type?.name === 'Slider');
 assert(slider.props.min === 3 && slider.props.max === 95, 'transparency slider range stays 3%–95%');
 
@@ -542,7 +579,12 @@ const ALPHA_KEY = 'dsh-liquid-glass:glass-alpha';
 const currentCss = () => documentMock.getElementById('dsh-liquid-glass-glass-css')?.textContent ?? '';
 const material = () => materialCalls.at(-1).overrides;
 const baseAlpha = () => Number(/, ([\d.]+)\)$/.exec(ctxCalls.overrideTokens.at(-1).overrides['--dsw-alias-bg-base'].light)[1]);
-const renderRow = () => ctxCalls.slotRegister.at(-1).component({ t, useStore: (select) => select(currentStore.getSnapshot()), ...currentActions });
+const renderRow = () => {
+  let tree = mountRow();
+  const advanced = findNode(tree, n => n.type?.name === 'Expander' && n.props.label === t('row.advanced'));
+  if (advanced && !advanced.props.open) { advanced.props.onClick(); tree = mountRow(); }
+  return tree;
+};
 function reload() {
   factoryResult.apply(ctxMock);
   const meta = ctxCalls.slotRegister.at(-1).meta;
@@ -557,19 +599,19 @@ assert(!/body\s*>|body\s*\{|html\s*\{|\[class|\.\w*__[\w-]+/.test(currentCss()),
 const filterRules = [...currentCss().matchAll(/([^{}]+)\{([^{}]*backdrop-filter[^{}]*)\}/g)];
 assert(filterRules.length === 1 && filterRules[0][1].trim() === '[data-liquid-glass-preview]::before', 'new backdrop filters are scoped only to a childless plugin preview decoration');
 assert(!/backdrop-filter/.test(source.slice(source.indexOf('function applyWallpaper()'), source.indexOf('function teardownWallpaper()'))), 'wallpaper never receives a backdrop filter');
-assert(!currentCss().includes('!important') && !source.includes('querySelector'), 'material styling neither overrides host selectors nor scans host DOM');
+assert(!currentCss().includes('!important') && !source.slice(source.indexOf('function glassCss'), source.indexOf('//#region settings presentation')).includes('querySelector'), 'material styling neither overrides host selectors nor scans host DOM (leave guard is separate)');
 for (const [preset, alpha, blur, saturation] of [['regular', 0.62, 12, 180], ['clear', 0.35, 6, 140], ['frost', 0.78, 20, 200]]) {
-  const button = findNode(renderRow(), (node) => node.type === 'button' && node.props.children === t(`glass.${preset}`));
-  button.props.onClick();
+  const control = findNode(renderRow(), node => node.type?.name === 'MaterialCards');
+  control.props.onChange(preset);
   const slider = findNode(renderRow(), (node) => node.type?.name === 'Slider' && node.props.label === t('glass.alpha'));
   assert(baseAlpha() === alpha && slider.props.value === Math.round((1 - alpha) * 100) && JSON.parse(storageMap.get(OPTIONS_KEY)).preset === preset, `${preset} synchronizes token opacity, slider, and persisted preset`);
-  assert(material()['--dsw-menu-backdrop-filter'].light === `blur(${blur}px) saturate(${saturation}%)` && currentCss().includes(`blur(${blur}px) saturate(${saturation}%)`), `${preset} uses its exact blur and saturation recipe in host material and preview`);
+  assert(material()['--dsw-menu-backdrop-filter'].light === `blur(${blur}px) saturate(${saturation}%)` && currentCss().includes(`blur(var(--preview-blur,${blur}px)) saturate(${saturation}%)`), `${preset} uses its exact blur and saturation recipe in host material and preview`);
 }
 currentActions.setPreset('regular');
 currentActions.setAlpha(80);
 assert(material()['--dsw-menu-backdrop-filter'].light === 'blur(3.9px) saturate(180%)' && currentStore.getSnapshot().options.preset === 'regular', 'manual transparency fine-tunes a preset and reduces blur');
 const filterCheck = findNode(renderRow(), (node) => node.type?.name === 'Check' && node.props.label === t('glass.filter'));
-filterCheck.type(filterCheck.props).props.children[0].props.onChange({ target: { checked: false } });
+filterCheck.type(filterCheck.props).props.onChange(false);
 assert(material()['--dsw-menu-backdrop-filter'].light === 'none' && currentCss().includes('backdrop-filter:none'), 'filter switch disables both host material blur and preview blur');
 currentActions.setGlass(false);
 assert(liveLayers.size === 0 && currentCss() === '', 'glass off disposes both token layers and all plugin material CSS');
@@ -684,7 +726,7 @@ reducedTransparency.change(true);
 assert(baseAlpha() === 0.5 && currentStore.getSnapshot().alpha === 0.5 && currentStore.getSnapshot().options.preset === 'frost' && material()['--dsw-menu-backdrop-filter'].light === 'blur(20px) saturate(200%)', 'reduced transparency applies Frost and caps transparency at 50%');
 let accessibleRow = renderRow();
 assert(findNode(accessibleRow, (node) => node.type?.name === 'Slider' && node.props.label === t('glass.alpha')).props.max === 50 && findNode(accessibleRow, (node) => node.props?.children === t('glass.accessibility')).props.role === 'status', 'settings show the effective cap and accessible status');
-assert(findNode(accessibleRow, (node) => node.type === 'button' && node.props.children === t('glass.clear')).props.disabled && currentActions.setPreset('clear') === false, 'preset controls cannot bypass an active system preference');
+assert(findNode(accessibleRow, node => node.type?.name === 'MaterialCards').props.disabled && currentActions.setPreset('clear') === false, 'preset controls cannot bypass an active system preference');
 assert(storageMap.get(ALPHA_KEY) === '0.05' && storageMap.get(OPTIONS_KEY) === savedOptions, 'system protection never overwrites saved appearance preferences');
 reload();
 assert(baseAlpha() === 0.5 && currentStore.getSnapshot().accessibility, 'system protection is read on boot, not only on change');
@@ -754,11 +796,13 @@ for (const corrupt of ['{broken', 'null', '42', '{"preset":"unknown","tint":"unk
   assert(currentStore.getSnapshot().options.preset === 'regular' && currentStore.getSnapshot().options.tint === 'neutral' && currentStore.getSnapshot().options.fit === 'cover' && currentStore.getSnapshot().options.brightness === 100 && currentStore.getSnapshot().options.dim === 0 && currentStore.getSnapshot().options.filter && currentStore.getSnapshot().options.autoDim, `corrupt options safely fall back: ${corrupt}`);
 }
 assert(Object.keys(dictionaries.en).sort().join('|') === Object.keys(dictionaries.zh).sort().join('|'), 'every settings and position label has both English and Chinese translations');
+currentActions.setWallpaper('data:image/png;base64,controls');
 const fitChoice = findNode(renderRow(), (node) => node.type?.name === 'Choices' && node.props.label === t('wallpaper.fit'));
-fitChoice.type(fitChoice.props).props.children[1].props.onChange({ target: { value: 'contain' } });
+const fitTree = mountComponent(fitChoice.type, () => fitChoice.props)();
+findNode(fitTree, node => node.type === officialUI.Menu).props.onSelect('contain');
 assert(currentStore.getSnapshot().options.fit === 'contain', 'wallpaper fit UI is wired to the persisted action');
 const positionChoice = findNode(renderRow(), (node) => node.type?.name === 'Choices' && node.props.label === t('wallpaper.position'));
-assert(positionChoice.props.values.length === 9 && positionChoice.type(positionChoice.props).type === 'label', 'nine-position control has a visible accessible label');
+assert(positionChoice.props.values.length === 9 && findNode(mountComponent(positionChoice.type, () => positionChoice.props)(), node => node.type === officialUI.Menu).props.anchor.props['aria-label'] === t('wallpaper.position'), 'nine-position control has a visible accessible label');
 
 console.log('\n[19] theme events, cleanup, and missing browser capabilities');
 publishThemeEvents = true;
@@ -798,6 +842,152 @@ assert(currentStore.getSnapshot().accessibility && legacyListeners.size === 1, '
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 assert(legacyListeners.size === 0, 'legacy media listeners are removed on disposal');
 windowMock.matchMedia = modernMatchMedia;
+
+console.log('\n[20] Video background persistence');
+reload();
+assert(typeof currentActions.setVideo === 'function', 'video background can be saved through the settings action');
+const flushVideo = async () => { for (let i = 0; i < 40; i++) await new Promise(resolve => setImmediate(resolve)); };
+const currentVideo = () => documentMock.getElementById('dsh-liquid-glass-video');
+const videoFile = new File(['test-video'], 'background.webm', { type: 'video/webm' });
+const videoKey = 'dsh-liquid-glass:video';
+currentActions.setGlass(true);
+if (typeof currentActions.setVideo === 'function') {
+  assert(await currentActions.setVideo(videoFile), 'decodable local video commits its Blob and selection');
+  await flushVideo();
+  const savedVideo = storageMap.get(videoKey);
+  assert(JSON.parse(savedVideo).name === 'background.webm' && !savedVideo.includes('test-video'), 'preferences hold metadata rather than video bytes');
+  assert(currentVideo()?.muted && currentVideo().loop && currentVideo().playsInline && !currentVideo().paused, 'video is a muted inline loop');
+  assert(currentStore.getSnapshot().video.status === 'playing', 'UI reports playing only after play resolves');
+  assert(dimLayer().style.backgroundColor === 'rgba(0, 0, 0, 0.35)', 'reading protection dims all video frames by at least 35%');
+  currentActions.setVideoPaused(true);
+  assert(currentVideo().paused, 'Pause immediately stops the video');
+  reload(); await flushVideo();
+  assert(currentVideo().paused && currentStore.getSnapshot().video.meta.name === 'background.webm', 'video selection and paused preference survive a runtime restart');
+  currentActions.setVideoPaused(false); await flushVideo();
+  documentMock.hidden = true; for (const listener of visibilityListeners) listener();
+  assert(currentVideo().paused, 'hidden pages pause their video');
+  documentMock.hidden = false; for (const listener of visibilityListeners) listener(); await flushVideo();
+  assert(!currentVideo().paused, 'visible pages resume only when the user has not paused');
+  mediaQuery('(prefers-reduced-motion: reduce)').change(true);
+  assert(currentVideo().paused && currentStore.getSnapshot().video.reducedMotion, 'system reduce-motion preference pauses playback');
+  mediaQuery('(prefers-reduced-motion: reduce)').change(false); await flushVideo();
+  currentActions.setVideoPaused(true); videoPlayBlocked = true;
+  currentActions.setVideoPaused(false); await flushVideo();
+  assert(currentStore.getSnapshot().video.error === 'video.blocked', 'autoplay rejection produces a recoverable visible state');
+  videoPlayBlocked = false; currentActions.setVideoPaused(false); await flushVideo();
+  assert(currentStore.getSnapshot().video.error === '' && !currentVideo().paused, 'explicit retry recovers blocked playback');
+  videoDecodeFails = true;
+  assert(!await currentActions.setVideo(videoFile) && storageMap.get(videoKey) === savedVideo, 'undecodable video leaves the previous selection intact');
+  videoDecodeFails = false;
+  assert(!await currentActions.setVideo(new File(['bad'], 'bad.avi', { type: 'video/x-msvideo' })) && storageMap.get(videoKey) === savedVideo, 'unsupported video formats are rejected without replacing the current video');
+  assert(!await currentActions.setVideo({ type: 'video/mp4', name: 'large.mp4', size: 101 * 1024 * 1024 }), 'oversized videos are rejected before reading them');
+  const originalIndexedDB = windowMock.indexedDB;
+  windowMock.indexedDB = undefined;
+  assert(!await currentActions.setVideo(videoFile) && storageMap.get(videoKey) === savedVideo, 'unavailable media storage preserves the previous selection');
+  windowMock.indexedDB = originalIndexedDB;
+  const originalSetItem = windowMock.localStorage.setItem;
+  windowMock.localStorage.setItem = (key, value) => { if (key === videoKey) throw new Error('quota'); originalSetItem(key, value); };
+  assert(!await currentActions.setVideo(videoFile) && storageMap.get(videoKey) === savedVideo, 'failed metadata commit does not discard the current video');
+  windowMock.localStorage.setItem = originalSetItem;
+  const removeItemBeforeVideoTest = windowMock.localStorage.removeItem;
+  windowMock.localStorage.removeItem = (key) => { if (key === videoKey) throw new Error('blocked'); removeItemBeforeVideoTest(key); };
+  assert(!currentActions.setWallpaper(null) && storageMap.get(videoKey) === savedVideo, 'failed video removal preserves selection');
+  windowMock.localStorage.removeItem = removeItemBeforeVideoTest;
+  currentActions.setOption('tint', 'warm'); currentActions.setAlpha(80);
+  assert(currentActions.resetAppearance() && storageMap.get(videoKey) === savedVideo && currentStore.getSnapshot().alpha === 0.62, 'reset restores appearance while preserving the video');
+  currentActions.setGlass(false);
+  assert(!currentVideo() && !wallpaperLayer() && liveLayers.size === 0, 'master switch off removes video, wallpaper and glass together');
+  currentActions.setGlass(true); await flushVideo();
+  assert(!!currentVideo(), 're-enabling restores the saved video');
+  const staleVideo = currentVideo();
+  assert(currentActions.setWallpaper('data:image/png;base64,replacement'), 'an image can replace a video');
+  assert(!currentVideo() && staleVideo.paused && storageMap.get(videoKey) === undefined && !!wallpaperLayer(), 'image selection removes and stops the old video');
+  const pendingVideo = currentActions.setVideo(videoFile);
+  currentActions.setWallpaper('data:image/png;base64,newer-choice');
+  assert(!await pendingVideo && storageMap.get(videoKey) === undefined && currentStore.getSnapshot().wallpaper === 'data:image/png;base64,newer-choice', 'pending video validation cannot overwrite a later image selection');
+  assert(revokedVideoURLs.length > 0, 'probe and playback Blob URLs are released');
+  effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+  assert(visibilityListeners.size === 0 && mediaQuery('(prefers-reduced-motion: reduce)').listeners.size === 0, 'video lifecycle releases visibility and motion listeners');
+}
+
+
+console.log('\n[21] Background drafts, leave confirmation and material cards');
+renderWallpaper.unmount();
+reload(); currentActions.setGlass(true);
+const eventListeners = new Map();
+windowMock.addEventListener = (type, listener) => { if (!eventListeners.has(type)) eventListeners.set(type, new Set()); eventListeners.get(type).add(listener); };
+windowMock.removeEventListener = (type, listener) => eventListeners.get(type)?.delete(listener);
+documentMock.querySelector = () => null;
+const dispatch = (type, target) => {
+  const event = { target, key: 'Escape', prevented: false, preventDefault() { this.prevented = true; }, stopImmediatePropagation() {} };
+  for (const listener of [...eventListeners.get(type) || []]) listener(event);
+  return event;
+};
+const savedImage = 'https://example.com/saved.jpg';
+currentActions.setWallpaper(savedImage);
+let applyFails = false, navigations = 0;
+const navButton = { getAttribute: () => null, closest: () => navButton, hasAttribute: () => false, click: () => { navigations++; dispatch('click', navButton); } };
+const panel = { querySelector: selector => selector === 'nav' ? { contains: node => node === navButton } : navButton };
+const renderEditor = mountComponent(section.type, () => ({
+  t, url: currentStore.getSnapshot().wallpaper, video: currentStore.getSnapshot().video,
+  previewBackground: currentActions.previewBackground, setVideoPaused: currentActions.setVideoPaused,
+  onApply: value => applyFails ? false : currentActions.setWallpaper(value), onVideo: currentActions.setVideo,
+}));
+let editor;
+const drawEditor = () => { editor = renderEditor(); editor.props.ref.current = { closest: () => panel }; return editor; };
+const button = key => findNode([editor, modal()?.props.footer], node => node.type === officialUI.Button && (node.props.children === t(key) || node.props['aria-label'] === t(key)));
+const modal = () => findNode(editor, node => node.type === officialUI.Modal);
+drawEditor();
+assert(!!findNode(editor, node => node.props?.['data-background-upload'] === '') && !button('wallpaper.save'), 'saved media occupies the permanent uploader without a redundant Save button');
+button('wallpaper.remove').props.onClick(); drawEditor();
+assert(storageMap.get(WALLPAPER_KEY) === savedImage && !wallpaperLayer(), 'removing media is immediately previewed without deleting the saved image');
+assert(button('wallpaper.choose') && button('wallpaper.save'), 'empty upload card remains available in a removal draft');
+assert(dispatch('click', navButton).prevented, 'dirty navigation is intercepted before the host unmounts settings');
+drawEditor();
+assert(modal().props.open && navigations === 0, 'official confirmation opens without navigating');
+button('wallpaper.keepEditing').props.onClick(); drawEditor();
+assert(!modal().props.open && button('wallpaper.save'), 'continue editing retains the draft');
+dispatch('click', navButton); drawEditor(); applyFails = true;
+await button('wallpaper.saveLeave').props.onClick(); drawEditor();
+assert(modal().props.open && navigations === 0 && storageMap.get(WALLPAPER_KEY) === savedImage, 'failed save keeps the confirmation open and the previous background intact');
+applyFails = false;
+button('wallpaper.discard').props.onClick(); drawEditor();
+assert(navigations === 1 && !!wallpaperLayer() && !button('wallpaper.save'), 'discard restores the saved background and replays navigation exactly once');
+assert(!eventListeners.get('beforeunload')?.size, 'clean editor removes unload protection');
+// Video validation stages a Blob without committing metadata or removing the image.
+findNode(editor, node => node.type === 'input').props.onChange({ target: { files: [videoFile], value: 'picked' } });
+await flushVideo(); drawEditor(); await flushVideo(); drawEditor();
+assert(!!findNode(editor, node => node.type === 'video') && !!currentVideo() && !storageMap.has(videoKey) && storageMap.get(WALLPAPER_KEY) === savedImage, 'video selection previews in the card and page before any persistent selection change');
+assert(!findNode(editor, node => node.props?.children === videoFile.name), 'video filename does not add a separate description row');
+assert(dispatch('keydown').prevented, 'Escape with an unsaved video opens the same leave confirmation');
+drawEditor(); await button('wallpaper.saveLeave').props.onClick(); drawEditor(); await flushVideo();
+assert(navigations === 2 && storageMap.has(videoKey) && !button('wallpaper.save'), 'Save and leave commits video before replaying the intended close');
+button('wallpaper.remove').props.onClick(); drawEditor();
+assert(!currentVideo() && storageMap.has(videoKey), 'video removal also stays reversible until Save');
+renderEditor.unmount(); await flushVideo();
+assert(!!currentVideo() && [...eventListeners.values()].every(set => set.size === 0), 'editor disposal restores saved media and releases leave listeners');
+const cardSpec = findNode(mountRow(), node => node.type?.name === 'MaterialCards');
+const renderCards = mountComponent(cardSpec.type, () => cardSpec.props);
+const cards = renderCards().props.children;
+assert(cards.length === 3 && cards.every(card => card.type === officialUI.Button && typeof card.props['aria-pressed'] === 'boolean'), 'all three material previews use official buttons with explicit selection state');
+assert(cards.filter(card => card.props['aria-pressed']).length === 1 && cards.every(card => findNode(card, node => node.props?.['data-liquid-glass-preview'] === '')), 'one selected material and a miniature surface preview are present in each card');
+currentActions.setGlass(false);
+assert(findNode(mountRow(), node => node.type === 'style').props.children.includes('[data-liquid-glass-preview]::before'), 'preview card styling remains available with the master effect disabled');
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
+console.log('\n[22] Runtime teardown before editor unmount');
+reload(); currentActions.setGlass(true); currentActions.setWallpaper(savedImage);
+const stoppedActions = currentActions;
+const stoppedEditor = mountComponent(section.type, () => ({ t, url: savedImage, video: currentStore.getSnapshot().video, previewBackground: stoppedActions.previewBackground, setVideoPaused: stoppedActions.setVideoPaused, onApply: stoppedActions.setWallpaper, onVideo: stoppedActions.setVideo }));
+stoppedEditor();
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+stoppedEditor.unmount(); await flushVideo();
+assert(!wallpaperLayer() && !dimLayer() && !currentVideo(), 'late editor cleanup cannot resurrect a stopped runtime background');
+reload(); currentActions.setGlass(true);
+currentActions.previewBackground({ kind: 'image', url: 'https://example.com/new-runtime-draft.jpg' });
+stoppedActions.previewBackground(null);
+assert(wallpaperLayer()?.style.backgroundImage.includes('new-runtime-draft.jpg'), 'an old runtime action cannot discard the new runtime draft');
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);

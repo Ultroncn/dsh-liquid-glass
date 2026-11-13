@@ -1,7 +1,7 @@
 {
   "name": "dsh-liquid-glass",
-  "version": "0.2.0",
-  "description": "DeepSeek Harness 液态玻璃：点一下，整个界面通透起来。透明度随心调，背景图自由换——让你的 Agent 住进风景里。Liquid glass for DeepSeek Harness: one toggle to turn the whole shell translucent, with a live opacity slider and a custom full-page background.",
+  "version": "0.3.0",
+  "description": "Theme backgrounds for DeepSeek Harness: native-style collapsible settings, translucent surfaces, and local image/video wallpapers. 主题背景：官方风格折叠设置、通透界面与本地图片/视频背景。",
   "license": "MIT",
   "author": "Ultronen",
   "repository": {
@@ -54,7 +54,10 @@
     }
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "@deepseek-ai/cordis": "^4.0.1"
+    "@deepseek-ai/cordis": "^4.0.1",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.2.8"
   }
 }

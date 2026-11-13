@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0 — 2026-11-13
+
+- Replace the standalone text preview with three selectable material cards built from official buttons.
+- Unify image/video selection in a compact uploader with thumbnail-overlay replace/remove controls.
+- Preview background drafts immediately; commit only on Save, and confirm before leaving settings with unsaved changes. Discard restores the previous background.
+
+- Rename the settings entry to Theme background (主题背景), directly below Appearance, with inline collapse and a separately collapsed Advanced section.
+- Reuse official switches, buttons, inputs, checkboxes, menus, modals and chevrons; align title/description layout with host settings.
+- Add local MP4/WebM backgrounds (100 MiB max), IndexedDB storage, muted looping, pause/resume, hidden-page and reduced-motion pauses, and explicit save/playback errors.
+- Master switch now disables all background effects while preserving preferences. Appearance reset retains the chosen background.
+- Preserve existing image/GIF settings; remove custom switch and full-screen image lightbox.
+
+- Prevent late editor cleanup from recreating backgrounds after plugin shutdown or discarding a newer runtime’s draft.
+- Add four real-host screenshots and a repository-owned `screenshots.json` for storefront discovery.
+- Validation: 262 assertions against the official 0.2.2-rc.2 host contract, independent code review, and installation of the packed release candidate in an isolated Web profile on macOS. Cross-platform codecs and low-end performance are not claimed.
+
 ## 0.2.0 — 2026-11-13
 
 Includes the 0.1.1 fixes below (0.1.1 was not released separately); verified in the
