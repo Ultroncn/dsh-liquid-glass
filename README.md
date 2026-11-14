@@ -66,7 +66,9 @@ The host has no public settings leave-guard API. Unsaved-change protection uses 
 The smoke test runs the published client bundle inside a mocked DSH browser runtime and exercises registration, lifecycle, settings, persistence, wallpaper controls and slider bounds:
 
 ```sh
+npm ci
 node test/smoke.test.mjs
+npm pack --dry-run --json
 ```
 
 ## Uninstall
