@@ -1,6 +1,6 @@
 # Theme background: local validation, 2026-11-13
 
-Release candidate: 0.3.0. This record describes validation before the release tag is published. This document covers the redesigned settings and local video support; the older v0.2.0 evidence file is historical.
+Historical release-candidate validation for 0.3.0, which has since been released. This record preserves the checks and limits observed before that release tag. It covers the redesigned settings and local video support; see [0.4.0 validation](v0.4.0-validation.md) for the later reading-protection, separate-appearance and still-video checks. The older v0.2.0 evidence file is also historical.
 
 ## Host contract
 

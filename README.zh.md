@@ -64,7 +64,9 @@ dsh plugin --profile web add dsh-liquid-glass
 冒烟测试会在模拟的 DSH 浏览器运行时中执行实际发布的客户端 bundle，覆盖注册、生命周期、设置、持久化、壁纸控制和滑块边界：
 
 ```sh
+npm ci
 node test/smoke.test.mjs
+npm pack --dry-run --json
 ```
 
 ## 卸载
