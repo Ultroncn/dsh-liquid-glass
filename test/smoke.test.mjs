@@ -606,6 +606,7 @@ for (const [preset, alpha, blur, saturation] of [['regular', 0.62, 12, 180], ['c
   control.props.onChange(preset);
   const slider = findNode(renderRow(), (node) => node.type?.name === 'Slider' && node.props.label === t('glass.alpha'));
   assert(baseAlpha() === alpha && slider.props.value === Math.round((1 - alpha) * 100) && JSON.parse(storageMap.get(OPTIONS_KEY)).preset === preset, `${preset} synchronizes token opacity, slider, and persisted preset`);
+  assert([...liveLayers.values()].every(tokens => !Object.keys(tokens).some(key => key === '--dsw-alias-settings-card-stroke' || key.startsWith('--dsw-alias-border-'))), `${preset} keeps the Host's settings-card and border colors instead of whitening light-mode list outlines`);
   assert(material()['--dsw-menu-backdrop-filter'].light === `blur(${blur}px) saturate(${saturation}%)` && currentCss().includes(`blur(var(--preview-blur,${blur}px)) saturate(${saturation}%)`), `${preset} uses its exact blur and saturation recipe in host material and preview`);
 }
 currentActions.setPreset('regular');
@@ -627,8 +628,8 @@ for (const [tint, light, dark] of [['cool', '237, 245, 255', '21, 27, 38'], ['wa
 reload();
 assert(currentStore.getSnapshot().options.tint === 'ink' && currentStore.getSnapshot().options.filter && baseAlpha() === 0.2, 'tint, filter, and fine-tuned opacity survive reload');
 assert(currentCss().includes('inset 0 1px 0') && currentCss().includes('border:1px solid') && currentCss().includes('body[data-ds-dark-theme] [data-liquid-glass-preview]::before'), 'preview rim has a 1px border and separate light/dark inset highlights');
-assert(material()['--dsw-alias-settings-card-stroke'].light !== material()['--dsw-alias-settings-card-stroke'].dark, 'host settings-card rim extends its existing light/dark stroke token');
-assert(Object.keys(material()).sort().join('|') === ['--dsw-alias-settings-card-stroke', '--dsw-menu-backdrop-filter', '--dsw-menu-surface-fill', '--dsw-specific-menu'].sort().join('|'), 'material layer uses only locally verified host tokens, with no invented per-message API');
+assert([...liveLayers.values()].every(tokens => !Object.keys(tokens).some(key => key === '--dsw-alias-settings-card-stroke' || key.startsWith('--dsw-alias-border-'))), 'reloading tinted glass preserves the Host border palette for light, dark and custom themes');
+assert(Object.keys(material()).sort().join('|') === ['--dsw-menu-backdrop-filter', '--dsw-menu-surface-fill', '--dsw-specific-menu'].sort().join('|'), 'material layer only changes verified menu materials and leaves Host borders untouched');
 currentActions.setAlpha(95);
 assert(material()['--dsw-menu-surface-fill'].light.endsWith(', 0.94)') && material()['--dsw-specific-menu'].dark.endsWith(', 0.94)'), 'reading protection raises menu fill to 0.94 at maximum shell transparency');
 currentActions.setOption('autoDim', false);
