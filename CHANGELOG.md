@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.2 — 2026-11-16
+
+### 中文
+
+- 修复开启主题背景后，归档列表和宿主设置卡片的浅色边框几乎不可见的问题：保留当前宿主主题的描边颜色，同时保持插件预览的装饰高光。
+- 增加三档质感预设与重新加载后的边框回归检查；在官方 DSH 0.2.2-rc.3 Web 上验证浅色、深色及图片背景下的归档卡片描边。
+
+### English
+
+- Fix nearly invisible light-mode outlines on archive lists and native settings cards while theme backgrounds are enabled. Preserve the active Host theme's border colors while retaining decorative highlights in the plugin preview.
+- Add border regressions for all three material presets and reloads; verify archive-card outlines in light/dark mode and with an image background on official DSH 0.2.2-rc.3 Web.
+
 ## 0.4.1 — 2026-11-16
 
 ### 中文
