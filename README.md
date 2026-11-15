@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 **Theme backgrounds for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — translucent surfaces with image or local video backgrounds.
 
-Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.4.0**. A community plugin that reuses the host’s official controls where available.
+Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.4.1**. A community plugin that reuses the host’s official controls where available.
 
 ## Install
 
@@ -18,7 +18,7 @@ dsh plugin --profile web add dsh-liquid-glass
 
 Run the command in a terminal. In the app’s Add plugin field, enter only `dsh-liquid-glass`.
 
-Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.4.0` in the app’s plugin field, not the full terminal command.
+Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.4.1` in the app’s plugin field, not the full terminal command.
 
 ## Screenshots
 
@@ -51,7 +51,7 @@ Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original 
 - **System accessibility response**: reduced transparency or increased contrast selects effective Frost material and limits transparency to 50%, without overwriting saved preferences.
 - **Keyboard toggle**: Ctrl/Cmd+Shift+G through the host shortcut service. Change or remove “Toggle Liquid Glass” in the host Keyboard shortcuts settings. Linux Web starts unbound; conflicting defaults fall back to an unbound command.
 
-Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [0.4.0 validation](docs/v0.4.0-validation.md) for this release.
+Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [0.4.0 validation](docs/v0.4.0-validation.md) for the 0.4.0 feature baseline.
 
 ## Privacy and compatibility
 
