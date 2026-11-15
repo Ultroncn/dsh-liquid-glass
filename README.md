@@ -10,6 +10,8 @@ English | [中文](README.zh.md)
 
 Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.4.1**. A community plugin that reuses the host’s official controls where available.
 
+Settings cards and list outlines retain the Host theme's border colors, including custom light and dark themes.
+
 ## Install
 
 ```sh
