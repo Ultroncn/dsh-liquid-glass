@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.1 — 2026-11-16
+
+### 中文
+
+- 将已合并的作者信息更正发布到 npm：包作者统一为 Ultroncn。
+- 同步中英文版本和安装说明，保留 0.4.0 功能截图与验证记录作为参考。
+- 包含已合并的未使用翻译清理；主题、图片/视频背景、阅读保护与浅深色设置行为不变。
+
+### English
+
+- Publish the merged author correction to npm: package metadata now names Ultroncn.
+- Synchronize bilingual version and installation guidance, retaining the 0.4.0 feature screenshots and validation records as references.
+- Include merged unused-translation cleanup. Theme, image/video backgrounds, reading protection and light/dark settings behavior are unchanged.
+
 ## 0.4.0 — 2026-11-13
 
 - Extend Reading protection to official surface tokens: opaque dialogs/overlays and at least 94% opacity for content, code and menus, while retaining base/sidebar transparency. Protection is available without a background and can be disabled.
