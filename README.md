@@ -18,7 +18,7 @@ Settings cards and list outlines retain the Host theme's border colors, includin
 dsh plugin --profile web add dsh-liquid-glass
 ```
 
-Run the command in a terminal. In the app’s Add plugin field, enter only `dsh-liquid-glass`.
+Run the command in a terminal. In the app’s Add plugin field, enter `dsh-liquid-glass@0.4.2`.
 
 Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.4.2` in the app’s plugin field, not the full terminal command.
 
