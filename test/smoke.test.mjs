@@ -1026,7 +1026,7 @@ if (currentActions.setSeparateAppearance) {
   assert(currentActions.setSeparateAppearance(false), 'separate profiles can be disabled');
   activeScheme = 'dark'; emitThemeChange();
   assert(currentStore.getSnapshot().alpha === 0.15 && !currentStore.getSnapshot().options.separateAppearance, 'disabling uses current appearance in both schemes');
-  for (const invalid of ['{broken', 'null', '{"version":1,"separate":true}', '{"version":1,"separate":true,"light":null,"dark":42}']) {
+  for (const invalid of ['{broken', 'null', '{"version":1,"separate":true}', '{"version":1,"separate":true,"light":null,"dark":42}', '{"version":2,"separate":true,"light":{"alpha":0.15,"options":{}},"dark":{"alpha":0.15,"options":{}}}', '{"version":1,"separate":"yes","light":{"alpha":0.15,"options":{}},"dark":{"alpha":0.15,"options":{}}}', '{"version":1,"separate":true,"light":{"alpha":"high","options":{}},"dark":{"alpha":0.15,"options":{}}}']) {
     storageMap.set(PROFILE_KEY, invalid); reload();
     assert(Number.isFinite(currentStore.getSnapshot().alpha) && !!currentStore.getSnapshot().options.tint, 'invalid profile record falls back safely: ' + invalid);
   }
