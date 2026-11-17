@@ -1026,9 +1026,11 @@ if (currentActions.setSeparateAppearance) {
   assert(currentActions.setSeparateAppearance(false), 'separate profiles can be disabled');
   activeScheme = 'dark'; emitThemeChange();
   assert(currentStore.getSnapshot().alpha === 0.15 && !currentStore.getSnapshot().options.separateAppearance, 'disabling uses current appearance in both schemes');
-  for (const invalid of ['{broken', 'null', '{"version":1,"separate":true}', '{"version":1,"separate":true,"light":null,"dark":42}', '{"version":2,"separate":true,"light":{"alpha":0.15,"options":{}},"dark":{"alpha":0.15,"options":{}}}', '{"version":1,"separate":"yes","light":{"alpha":0.15,"options":{}},"dark":{"alpha":0.15,"options":{}}}', '{"version":1,"separate":true,"light":{"alpha":"high","options":{}},"dark":{"alpha":0.15,"options":{}}}']) {
+  const fallbackAppearance = currentStore.getSnapshot();
+  for (const invalid of ['{broken', 'null', '{"version":1,"separate":true}', '{"version":1,"separate":true,"light":null,"dark":42}', '{"version":2,"separate":true,"light":{"alpha":0.37,"options":{}},"dark":{"alpha":0.37,"options":{}}}', '{"version":1,"separate":"yes","light":{"alpha":0.37,"options":{}},"dark":{"alpha":0.37,"options":{}}}', '{"version":1,"separate":true,"light":{"alpha":"high","options":{}},"dark":{"alpha":0.37,"options":{}}}']) {
     storageMap.set(PROFILE_KEY, invalid); reload();
-    assert(Number.isFinite(currentStore.getSnapshot().alpha) && !!currentStore.getSnapshot().options.tint, 'invalid profile record falls back safely: ' + invalid);
+    const snapshot = currentStore.getSnapshot();
+    assert(snapshot.alpha === fallbackAppearance.alpha && snapshot.options.tint === fallbackAppearance.options.tint && !snapshot.options.separateAppearance, 'invalid profile record falls back to regular appearance: ' + invalid);
   }
   storageMap.delete(PROFILE_KEY); activeScheme = 'light'; reload();
 }
