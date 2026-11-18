@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 **Theme backgrounds for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — translucent surfaces with image or local video backgrounds.
 
-Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.4.2**. A community plugin that reuses the host’s official controls where available.
+Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.5.0**. A community plugin that reuses the host’s official controls where available.
 
 Settings cards and list outlines retain the Host theme's border colors, including custom light and dark themes.
 
@@ -18,9 +18,9 @@ Settings cards and list outlines retain the Host theme's border colors, includin
 dsh plugin --profile web add dsh-liquid-glass
 ```
 
-Run the command in a terminal. In the app’s Add plugin field, enter `dsh-liquid-glass@0.4.2`.
+Run the command in a terminal. In the app’s Add plugin field, enter `dsh-liquid-glass@0.5.0`.
 
-Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.4.2` in the app’s plugin field, not the full terminal command.
+Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.5.0` in the app’s plugin field, not the full terminal command.
 
 ## Screenshots
 
