@@ -4,7 +4,7 @@
 <p><strong>Translucent surfaces and custom backgrounds for DeepSeek Harness.</strong></p>
 <p><code>dsh-liquid-glass</code></p>
 
-<p><a href="README.zh.md">简体中文</a> · <strong>English</strong></p>
+<p><a href="README.zh.md">简体中文</a> · <strong>English</strong> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 <p><a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE">MIT License</a></p>
 
 <p>
@@ -22,7 +22,7 @@
 
 Liquid Glass adds adjustable glass surfaces and image or video backgrounds to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). It is maintained by the community.
 
-> **Published package 0.5.0:** includes the original wallpaper rotation pool and JSON appearance import/export. The [changes on main](https://github.com/Ultroncn/dsh-liquid-glass/pull/30) move rotation into Background, keep six thumbnails in one scrollable row, and remove appearance import/export. Those changes are awaiting a package release.
+> **Published package 0.5.0:** includes the original wallpaper rotation pool and JSON appearance import/export. The [changes on main](https://github.com/Ultroncn/dsh-liquid-glass/pull/30) move rotation into Background, show up to six thumbnails in one scrollable row, and remove appearance import/export. Those changes are awaiting a package release.
 
 ## Install and open
 
