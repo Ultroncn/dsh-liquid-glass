@@ -4,7 +4,7 @@
 <p><strong>Superficies translúcidas y fondos personalizados para DeepSeek Harness.</strong></p>
 <p><code>dsh-liquid-glass</code></p>
 
-<p><a href="README.zh.md">简体中文</a> · <a href="README.md">English</a> · <a href="README.ja.md">日本語</a> · <strong>Español</strong> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
+<p><a href="README.md">简体中文</a> · <a href="README.en.md">English</a> · <a href="README.ja.md">日本語</a> · <strong>Español</strong> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 <p><a href="CHANGELOG.md">Historial de cambios</a> · <a href="LICENSE">Licencia MIT</a></p>
 
 <p>

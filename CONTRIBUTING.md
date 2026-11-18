@@ -29,8 +29,8 @@
 
 ## 文档同步 / Docs stay in sync
 
-- `README.md` and `README.zh.md` describe the same features; update both together.
-- `README.md` 与 `README.zh.md` 描述同一功能，改一处就要同步另一处。
+- `README.md` (Simplified Chinese) and `README.en.md` (English) describe the same features; update both together.
+- `README.md`（简体中文）与 `README.en.md`（英文） 描述同一功能，改一处就要同步另一处。
 
 ## 发布规则 / Releases
 
