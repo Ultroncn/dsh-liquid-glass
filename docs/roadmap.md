@@ -7,9 +7,10 @@ Research refreshed 2026-11-13. The first three items are delivered in 0.4.0 with
 | Delivered | Reading protection | Catppuccin documents a compatibility material mode and different light/dark treatment. Our full-shell transparency can still reveal content through settings. | Uses verified official surface tokens; opaque dialogs and protected content/code/menu surfaces. No per-message selectors. |
 | Delivered | Optional still-video mode | Wallpaper Engine documents hidden/occluded and unfocused playback pause. Current support already pauses hidden pages and respects reduced motion. | Paused decoded first frame verified on macOS Web. Video remains loaded; CPU/GPU and power benefits are unmeasured. |
 | Delivered | Separate light/dark appearance presets | Catppuccin lets users pair light and dark choices under system switching; this reduces repeated tuning. | Opt-in profiles preserve existing settings. Manual scheme switching verified in the real host; resolved system/custom scheme events covered by runtime tests. |
+| Delivered (next release) | Wallpaper rotation pool | Top competitors (dsh-wallpaper-engine, dsh-any-background, dsh-ui-liquid-glass) all rotate saved wallpapers; our single-background model was the gap. | Pool of saved images/videos, sequential or random, on open/hourly/daily/by time of day; off by default; reuses localStorage + IndexedDB; evaluated on open, no background timer. |
 | 4 | Export/import appearance settings | Any Background groups a broad set of options and has configuration management. A small portable settings file could help users reproduce a look. | Validate a versioned schema, provide preview and rollback, and exclude local video/image bytes by default. No automatic cloud account or sync requirement. |
 
-Avoid adding a wallpaper store, playlists, audio visualization, particles or a WebGL scene engine until users demonstrate a need. Those materially enlarge scope and maintenance, while established projects already cover them.
+Avoid adding a wallpaper store, audio visualization, particles or a WebGL scene engine until users demonstrate a need. Those materially enlarge scope and maintenance, while established projects already cover them.
 
 ## Sources and limits
 
