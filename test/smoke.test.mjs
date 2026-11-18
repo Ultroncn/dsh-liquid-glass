@@ -1417,5 +1417,34 @@ assert(currentStore.getSnapshot().rotation.enabled === false && currentStore.get
 restoreRow.unmount();
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
+console.log('\n[29] Independent wallpaper opacity and glass blur');
+reload();
+currentActions.setGlass(true);
+currentActions.setPreset('regular');
+currentActions.setWallpaper('https://example.com/wallpaper.jpg');
+currentActions.setOption('autoDim', false);
+currentActions.setOption('dim', 40);
+const backdropFilter = () => liveLayers.get('dsh-liquid-glass:material')?.['--dsw-menu-backdrop-filter']?.light;
+const startingBlur = backdropFilter();
+assert(currentStore.getSnapshot().options.wallpaperOpacity === 100,
+  'legacy options keep full wallpaper opacity by default');
+assert(currentActions.setOption('wallpaperOpacity', 30) && Number(wallpaperLayer().style.opacity) === 0.3
+  && dimLayer().style.backgroundColor === 'rgba(0, 0, 0, 0.12)' && backdropFilter() === startingBlur,
+  'wallpaper opacity scales wallpaper and its dim layer without changing glass blur');
+const beforeGlassFilter = wallpaperLayer().style.filter;
+assert(currentActions.setOption('glassBlur', 19) && backdropFilter().startsWith('blur(19px)')
+  && Number(wallpaperLayer().style.opacity) === 0.3 && wallpaperLayer().style.filter === beforeGlassFilter,
+  'custom glass blur changes the existing material filter without changing wallpaper opacity or detail');
+reload();
+assert(backdropFilter().startsWith('blur(19px)') && Number(wallpaperLayer().style.opacity) === 0.3,
+  'independent opacity and blur values persist after reopening');
+currentActions.setPreset('clear');
+assert(backdropFilter().startsWith('blur(6px)') && Number(wallpaperLayer().style.opacity) === 0.3,
+  'selecting a material preset restores its blur while keeping wallpaper opacity');
+await currentActions.setVideo(videoFile);
+await flushVideo();
+assert(Number(currentVideo().style.opacity) === 0.3, 'the wallpaper opacity also applies to videos');
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);
