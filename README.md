@@ -40,7 +40,7 @@ Run the same command to upgrade to 0.5.0. It pins the version and uses the offic
 
 ## Use Liquid Glass
 
-1. Choose **Regular**, **Clear**, or **Frost**, then fine-tune the surface transparency (3%–95%).
+1. Choose **Regular**, **Clear**, or **Frost**, then fine-tune the surface transparency (3%–95%). On main, selecting a preset previews it. **Apply preset** saves it, **Cancel preview** restores the saved look, and **Undo preset change** restores the previous appearance during the current session.
 2. Under **Background**, add a local image, an image URL, or a local MP4/WebM video up to 100 MiB. Video decoding depends on your browser. Preview the background, then select **Save** for the main background picker. Videos loop muted and can be paused.
 3. In 0.5.0, add the saved background to the **Wallpaper rotation** pool. Rotation starts off and checks for a switch when DSH opens. In the version on main, use **Add images** in **Background** to select several photos at once. Click a thumbnail to use it, or replace it in place.
 4. Open **Advanced settings** for separate light and dark appearances, reading protection, tint, menu frost, fit, position, brightness, and dimming. Saved videos can use a still frame. Resetting the effects preserves the background and the main switch.
