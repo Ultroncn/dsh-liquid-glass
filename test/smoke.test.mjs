@@ -1361,5 +1361,61 @@ const advancedPanel = findNode(mountRow(), node => node.props?.id === advancedEx
 assert(advancedPanel?.props.style.paddingInlineStart === '28px', 'advanced controls align under the heading after the disclosure gutter');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
+console.log('\n[28] Independent glass and native appearance');
+reload();
+currentActions.setGlass(true);
+currentActions.setWallpaper('data:image/png;base64,cHJpdmF0ZQ==');
+currentActions.setPreset('frost');
+const glassWallpaper = storageMap.get(WALLPAPER_KEY);
+assert(currentActions.setGlassSurfaces(false) && liveLayers.size === 1
+  && Object.keys(liveLayers.get('dsh-liquid-glass:wallpaper-canvas') ?? {}).join() === '--dsw-alias-bg-base'
+  && bodyChildren.some(node => node.style.backgroundImage?.includes(glassWallpaper)),
+  'wallpaper-only mode opens the base canvas and leaves native material tokens alone');
+reload();
+assert(currentStore.getSnapshot().glassSurfaces === false && liveLayers.has('dsh-liquid-glass:wallpaper-canvas'),
+  'the separate glass switch persists across restart');
+currentActions.setWallpaper(null);
+assert(liveLayers.size === 0, 'removing the wallpaper clears the canvas override when glass is off');
+currentActions.setWallpaper(glassWallpaper);
+assert(liveLayers.has('dsh-liquid-glass:wallpaper-canvas'), 'changing the wallpaper reapplies the wallpaper canvas with glass off');
+assert(currentActions.setGlassSurfaces(true) && liveLayers.size === 2 && storageMap.get(WALLPAPER_KEY) === glassWallpaper,
+  'turning glass back on reapplies the saved appearance without replacing wallpaper');
+
+const failedResetSnapshot = gallerySnapshot();
+currentActions.previewBackground({ kind: 'image', url: 'data:image/png;base64,draft' });
+assert(currentActions.restoreNativeAppearance().error && failedResetSnapshot === gallerySnapshot(),
+  'restoring native is blocked while a background draft is being edited');
+currentActions.previewBackground(null);
+const originalRemoveItemForReset = windowMock.localStorage.removeItem;
+windowMock.localStorage.removeItem = key => {
+  if (key === WALLPAPER_KEY) throw new DOMException('Storage denied', 'SecurityError');
+  originalRemoveItemForReset(key);
+};
+const resetFailure = currentActions.restoreNativeAppearance();
+windowMock.localStorage.removeItem = originalRemoveItemForReset;
+assert(resetFailure.error && JSON.stringify(failedResetSnapshot) === JSON.stringify(gallerySnapshot())
+  && currentStore.getSnapshot().on && liveLayers.size === 2,
+  'native reset rolls back fully if settings cannot be saved');
+
+const restoreRow = mountComponent(ctxCalls.slotRegister.at(-1).component, () => ({
+  t, useStore: select => select(currentStore.getSnapshot()), ...currentActions,
+}));
+findNode(restoreRow(), node => node.type?.name === 'Expander' && node.props.label === t('row.configure')).props.onClick();
+const restoreButton = () => findNode(restoreRow(), node => node.type === officialUI.Button && node.props.children === t('glass.restoreNative'));
+const restoreModal = () => findNode(restoreRow(), node => node.type === officialUI.Modal && node.props.title === t('glass.restoreTitle'));
+restoreButton().props.onClick();
+assert(restoreModal().props.open && currentStore.getSnapshot().on, 'native reset asks for confirmation before changing settings');
+restoreModal().props.onClose();
+assert(JSON.stringify(failedResetSnapshot) === JSON.stringify(gallerySnapshot()), 'cancelling native reset preserves the current appearance');
+restoreButton().props.onClick();
+restoreModal().props.footer.find(node => node.props.children === t('glass.restoreConfirm')).props.onClick();
+assert(!restoreModal().props.open && !currentStore.getSnapshot().on && liveLayers.size === 0
+  && storageMap.get(WALLPAPER_KEY) === undefined && !bodyChildren.some(node => node.style.backgroundImage?.includes(glassWallpaper)),
+  'confirming native reset removes glass and wallpaper from the host and clears the active selection');
+assert(currentStore.getSnapshot().rotation.enabled === false && currentStore.getSnapshot().rotation.items.length > 0,
+  'restoring native settings disables rotation without deleting the saved wallpaper library');
+restoreRow.unmount();
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);
