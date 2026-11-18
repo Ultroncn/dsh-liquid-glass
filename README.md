@@ -70,7 +70,7 @@ These screenshots show the 0.4.0 interface in DSH 0.2.2-rc.2 Web.
 
 ## Compatibility and data
 
-The client bundle targets DSH Web. Validation includes [DSH 0.2.2-rc.2](docs/v0.4.0-validation.md), the published release checks in the [changelog](CHANGELOG.md), and the Web checks for the [gallery update](https://github.com/Ultroncn/dsh-liquid-glass/pull/30). See the [host API notes](docs/v0.2.0-local-evidence.md) for integration details. The plugin interface provides English and Simplified Chinese.
+The client bundle targets DSH Web. Validation includes [DSH 0.2.2-rc.2](docs/v0.4.0-validation.md), the published release checks in the [changelog](CHANGELOG.md), and the Web checks for the [gallery update](https://github.com/Ultroncn/dsh-liquid-glass/pull/30). See the [host API notes](docs/v0.2.0-local-evidence.md) for integration details. The plugin interface provides English and Simplified Chinese. On main, **Advanced settings → Diagnostics and compatibility** shows the verified host version, test date and live hook status. Its copyable JSON report includes capability and appearance status. With the system’s reduced transparency preference enabled, main uses opaque surfaces and hides wallpaper until the preference is cleared.
 
 Preferences and images are stored in the site’s `localStorage`. Videos and the recent image history are stored in IndexedDB. The plugin has no server component or telemetry.
 
