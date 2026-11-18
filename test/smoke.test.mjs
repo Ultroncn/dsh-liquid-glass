@@ -1054,5 +1054,30 @@ assert(!currentVideo()?.paused, 'motion playback resumes when no pause condition
 assert(!currentActions.setOption('videoMode', 'unknown'), 'invalid motion modes are rejected');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
+console.log('\n[25] Corrupt persisted video, alpha, and glass records on boot');
+reload(); currentActions.setGlass(true); await flushVideo();
+assert(!!currentVideo(), 'a valid video selection is restored before corrupting its record');
+const validVideo = storageMap.get(videoKey);
+for (const record of ['{broken', 'null', '[]', '{"id":"bad id!","name":"background.webm"}', `{"id":"${'x'.repeat(81)}","name":"background.webm"}`, '{"id":"video-1"}', '{"id":"video-1","name":42}', '{"name":"background.webm"}']) {
+  storageMap.set(videoKey, record);
+  reload(); await flushVideo();
+  assert(!currentVideo() && currentStore.getSnapshot().video.meta === null && currentStore.getSnapshot().video.error === '', `corrupt video record falls back to no video: ${record.slice(0, 40)}`);
+  assert(liveLayers.size === 2, 'corrupt video record still applies both glass layers');
+}
+storageMap.set(videoKey, validVideo);
+reload(); await flushVideo();
+assert(!!currentVideo() && currentStore.getSnapshot().video.meta?.name === 'background.webm', 'restoring the valid video record brings the saved video back');
+for (const [raw, expected] of [['not-a-number', 0.62], ['0', 0.62], ['-1', 0.62], ['2', 0.97], ['0.03', 0.05]]) {
+  storageMap.set(ALPHA_KEY, raw);
+  reload();
+  assert(Math.abs(baseAlpha() - expected) < 1e-12 && Math.abs(currentStore.getSnapshot().alpha - expected) < 1e-12, `corrupt alpha "${raw}" falls back to ${expected} on boot`);
+}
+storageMap.set('dsh-liquid-glass:glass', 'maybe');
+reload();
+assert(!currentStore.getSnapshot().on && liveLayers.size === 0, 'an unrecognized glass switch value disables glass instead of crashing');
+storageMap.set('dsh-liquid-glass:glass', 'on');
+reload();
+assert(currentStore.getSnapshot().on && liveLayers.size === 2, 'glass recovers after the switch value is repaired');
+
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);
