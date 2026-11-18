@@ -348,7 +348,7 @@ const expectedPackages = Object.values(serviceProviders);
 assert(JSON.stringify(manifest.dsh.client.inject) === JSON.stringify(expectedPackages), 'real manifest inject declares exactly the installed locale and theme packages');
 const expectedServices = ['slots', ...Object.keys(serviceProviders).filter((service) => manifest.dsh.client.inject.includes(serviceProviders[service]))];
 assert(JSON.stringify(factoryResult.inject) === JSON.stringify(expectedServices), 'Cordis service injection matches the real manifest providers and shell slots service');
-assert(manifest.version === '0.5.0' && manifest.dsh.client.platform === 'web' && manifest.dsh.client.immediately === true, 'release version 0.5.0 and web activation flags are correct');
+assert(manifest.version === '0.6.0' && manifest.dsh.client.platform === 'web' && manifest.dsh.client.immediately === true, 'release version 0.6.0 and web activation flags are correct');
 assert(JSON.stringify([...requestedModules].sort()) === JSON.stringify(Object.keys(moduleTable).sort()), 'factory imports only the verified React, JSX, and client-store platform seeds');
 for (const missing of ['@deepseek-ai/dsh-client-runtime/client', '@deepseek-ai/dsh-client-store/client', 'unknown-package']) {
   let rejected = false;

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.6.0 — 2026-11-19
+
+### 中文
+
+- 将轮换移入「背景」区。支持批量添加、逐张替换和缩略图单行横向滚动，新增上限为 6 个条目。移除外观设置 JSON 导入与导出。
+- 玻璃效果可独立关闭并保留壁纸。「恢复原生外观」经确认后重置效果和当前背景，保留已保存的轮换条目。高级设置展开后与标题文字对齐。
+- 独立调节壁纸不透明度、菜单玻璃模糊、阅读保护自动暗化和暗角。设置显示内容文字对比度估算。
+- 预设支持试穿、确认应用和撤销。最近图片最多保留 12 张及其构图，支持拖拽定位、滚轮缩放和键盘滑块。
+- 新增可复制的诊断 JSON。系统要求减少透明度时使用不透明界面并临时隐藏壁纸。README 提供八种语言。
+
+### English
+
+- Move wallpaper rotation into Background. Batch-add or replace individual images, with a single horizontally scrolling row and a six-entry limit for new additions. Remove JSON appearance import and export.
+- Turn off glass while keeping the wallpaper. Restore native appearance after confirmation while retaining the rotation library. Align expanded Advanced settings with the heading.
+- Adjust wallpaper opacity, menu glass blur, reading-protection dimming, and vignette independently. Show a content-text contrast estimate in settings.
+- Preview, apply, and undo presets. Keep the last 12 images with their composition, and adjust placement with dragging, wheel zoom, or keyboard-accessible sliders.
+- Add a copyable diagnostics report. Honor reduced transparency with opaque surfaces and temporarily hidden wallpaper. Provide the README in eight languages.
+
 ## 0.5.0 — 2026-11-19
 
 ### 中文

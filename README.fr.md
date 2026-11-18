@@ -22,25 +22,25 @@
 
 Liquid Glass ajoute des surfaces translucides et des fonds d’écran avec des images ou des vidéos à [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). Ce module est maintenu par la communauté.
 
-> **Version 0.5.0 publiée sur npm.** Elle propose la liste de rotation d’origine et l’importation et l’exportation des réglages d’apparence au format JSON. Les [changements de la branche main](https://github.com/Ultroncn/dsh-liquid-glass/pull/30) intègrent la rotation au panneau des fonds d’écran, avec jusqu’à six vignettes sur une seule ligne à défilement horizontal. Ils retirent également l’importation et l’exportation de l’apparence. Leur publication sur npm est à venir.
+> **Version 0.6.0.** La rotation se trouve dans la section des fonds d’écran. Vous pouvez ajouter plusieurs images, les remplacer une par une et parcourir jusqu’à six vignettes sur une seule ligne à défilement horizontal. Le [journal des modifications](CHANGELOG.md) décrit la suppression de l’importation et de l’exportation de l’apparence ainsi que les autres nouveautés.
 
 ## Installation et ouverture
 
-Cherchez `dsh-liquid-glass` dans le catalogue de modules de DSH et vérifiez que l’auteur est **Ultroncn**. Dans le champ d’ajout de l’application, saisissez `dsh-liquid-glass@0.5.0`. En ligne de commande, remplacez `web` par le profil que vous utilisez pour DSH.
+Cherchez `dsh-liquid-glass` dans le catalogue de modules de DSH et vérifiez que l’auteur est **Ultroncn**. Dans le champ d’ajout de l’application, saisissez `dsh-liquid-glass@0.6.0`. En ligne de commande, remplacez `web` par le profil que vous utilisez pour DSH.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.5.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.6.0 --registry=https://registry.npmjs.org/
 ```
 
 Redémarrez DSH après l’installation ou la mise à jour. Ouvrez **Settings → General → Theme background** (**设置 → 通用 → 主题背景**), sous **Appearance**. L’interrupteur principal commande à la fois l’effet de verre et le fond d’écran. Vos réglages restent enregistrés lorsqu’il est désactivé.
 
-Pour passer à la version 0.5.0, exécutez la même commande. Elle fixe la version et utilise le registre npm officiel. En cas d’erreur `ERR_PNPM_ADDING_TO_ROOT`, ajoutez `-w` après `add`.
+Pour passer à la version 0.6.0, exécutez la même commande. Elle fixe la version et utilise le registre npm officiel. En cas d’erreur `ERR_PNPM_ADDING_TO_ROOT`, ajoutez `-w` après `add`.
 
 ## Utilisation
 
 1. Choisissez **Regular**, **Clear** ou **Frost**, puis ajustez la transparence de l’interface entre 3 % et 95 %.
 2. Dans **Background**, choisissez une image locale, une URL d’image ou une vidéo MP4/WebM locale de 100 MiB maximum. Le navigateur doit prendre en charge le codec. Dans le sélecteur principal, prévisualisez le fond puis cliquez sur **Save**. Les vidéos tournent en boucle sans son et peuvent être mises en pause.
-3. Dans la version 0.5.0, ajoutez le fond enregistré à la liste **Wallpaper rotation**. La rotation est désactivée par défaut et le changement est évalué à l’ouverture de DSH. Sur main, **Add images** permet de sélectionner plusieurs images. Cliquez sur une vignette pour l’appliquer ou remplacez-la individuellement.
+3. Dans **Background**, cliquez sur **Add images** pour sélectionner plusieurs photos. Cliquez sur une vignette pour l’appliquer ou utilisez le bouton de remplacement. **Rotation settings** règle l’ordre et le moment du changement. La rotation est évaluée à l’ouverture de DSH.
 4. Ouvrez **Advanced settings** pour régler les modes clair et sombre séparément, la lisibilité, la teinte, le flou des menus, le cadrage, la position, la luminosité, l’assombrissement et l’affichage d’une image fixe tirée de la vidéo.
 
 ## Aperçu
