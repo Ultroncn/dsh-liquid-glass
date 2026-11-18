@@ -4,7 +4,7 @@
 <p><strong>Transparente Oberflächen und eigene Hintergründe für DeepSeek Harness.</strong></p>
 <p><code>dsh-liquid-glass</code></p>
 
-<p><a href="README.zh.md">简体中文</a> · <a href="README.md">English</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <strong>Deutsch</strong> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
+<p><a href="README.md">简体中文</a> · <a href="README.en.md">English</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <strong>Deutsch</strong> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 <p><a href="CHANGELOG.md">Änderungsprotokoll</a> · <a href="LICENSE">MIT-Lizenz</a></p>
 
 <p>

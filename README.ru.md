@@ -4,7 +4,7 @@
 <p><strong>Полупрозрачный интерфейс и собственные фоны для DeepSeek Harness.</strong></p>
 <p><code>dsh-liquid-glass</code></p>
 
-<p><a href="README.zh.md">简体中文</a> · <a href="README.md">English</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <strong>Русский</strong> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
+<p><a href="README.md">简体中文</a> · <a href="README.en.md">English</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <strong>Русский</strong> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 <p><a href="CHANGELOG.md">История изменений</a> · <a href="LICENSE">Лицензия MIT</a></p>
 
 <p>

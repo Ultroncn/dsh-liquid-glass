@@ -4,7 +4,7 @@
 <p><strong>DeepSeek Harness にガラス効果と画像・動画の背景を追加。</strong></p>
 <p><code>dsh-liquid-glass</code></p>
 
-<p><a href="README.zh.md">简体中文</a> · <a href="README.md">English</a> · <strong>日本語</strong> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
+<p><a href="README.md">简体中文</a> · <a href="README.en.md">English</a> · <strong>日本語</strong> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 <p><a href="CHANGELOG.md">変更履歴</a> · <a href="LICENSE">MIT ライセンス</a></p>
 
 <p>
