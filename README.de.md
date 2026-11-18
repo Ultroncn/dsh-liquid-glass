@@ -22,25 +22,25 @@
 
 Liquid Glass ergänzt [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) um einstellbare Glasflächen und Hintergründe aus Bildern oder Videos. Das Plugin wird von der Community gepflegt.
 
-> **Auf npm ist Version 0.5.0 veröffentlicht.** Sie enthält die ursprüngliche Hintergrundrotation sowie den JSON-Import und -Export für Darstellungseinstellungen. Mit den [Änderungen auf main](https://github.com/Ultroncn/dsh-liquid-glass/pull/30) wandert die Rotation in den Hintergrundbereich. Dort stehen bis zu sechs Vorschaubilder in einer horizontal scrollbaren Reihe. Der Import und Export entfällt. Diese Änderungen sind noch nicht als npm-Paket veröffentlicht.
+> **Version 0.6.0.** Die Rotation befindet sich jetzt im Hintergrundbereich. Füge mehrere Bilder gleichzeitig hinzu, ersetze einzelne Bilder und scrolle horizontal durch bis zu sechs Vorschaubilder in einer Reihe. Das [Änderungsprotokoll](CHANGELOG.md) beschreibt den Wegfall des Imports und Exports der Darstellungseinstellungen und die weiteren Änderungen.
 
 ## Installieren und öffnen
 
-Suche im DSH-Plugin-Marktplatz nach `dsh-liquid-glass` und prüfe, ob **Ultroncn** als Autor angegeben ist. Gib im Eingabefeld zum Hinzufügen von Plugins `dsh-liquid-glass@0.5.0` ein. Ersetze bei der Installation im Terminal `web` durch dein DSH-Profil.
+Suche im DSH-Plugin-Marktplatz nach `dsh-liquid-glass` und prüfe, ob **Ultroncn** als Autor angegeben ist. Gib im Eingabefeld zum Hinzufügen von Plugins `dsh-liquid-glass@0.6.0` ein. Ersetze bei der Installation im Terminal `web` durch dein DSH-Profil.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.5.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.6.0 --registry=https://registry.npmjs.org/
 ```
 
 Starte DSH nach der Installation oder Aktualisierung neu. Öffne **Settings → General → Theme background** (**设置 → 通用 → 主题背景**) unterhalb von **Appearance**. Der Hauptschalter steuert den Glaseffekt und den Hintergrund gemeinsam. Deine Einstellungen bleiben beim Ausschalten gespeichert.
 
-Zum Update auf 0.5.0 führst du denselben Befehl aus. Er gibt die Version vor und nutzt die offizielle npm-Registry. Bei `ERR_PNPM_ADDING_TO_ROOT` füge nach `add` die Option `-w` ein.
+Zum Update auf 0.6.0 führst du denselben Befehl aus. Er gibt die Version vor und nutzt die offizielle npm-Registry. Bei `ERR_PNPM_ADDING_TO_ROOT` füge nach `add` die Option `-w` ein.
 
 ## Bedienung
 
 1. Wähle **Regular**, **Clear** oder **Frost** und stelle die Transparenz der Oberfläche zwischen 3 % und 95 % ein.
 2. Wähle unter **Background** ein lokales Bild, eine Bild-URL oder ein lokales MP4-/WebM-Video bis 100 MiB. Der Browser muss den Videocodec unterstützen. Prüfe die Vorschau im Hauptbereich und klicke dann auf **Save**. Das Video läuft ohne Ton in einer Schleife und lässt sich anhalten.
-3. Füge den gespeicherten Hintergrund in 0.5.0 zur Liste **Wallpaper rotation** hinzu. Die Rotation ist anfangs deaktiviert. Wenn sie aktiv ist, prüft DSH beim Start, ob der Hintergrund gewechselt wird. Auf main kannst du über **Add images** mehrere Bilder auswählen und ein Vorschaubild anklicken, um es zu verwenden, oder einzeln ersetzen.
+3. Wähle unter **Background** mit **Add images** mehrere Fotos gleichzeitig. Klicke auf ein Vorschaubild, um es zu verwenden, oder nutze die Schaltfläche zum Ersetzen. Unter **Rotation settings** legst du Reihenfolge und Zeitpunkt fest. DSH prüft beim Start, ob der Hintergrund gewechselt wird.
 4. In **Advanced settings** findest du separate Stile für hell und dunkel, Leseschutz, Farbton, Menüunschärfe, Skalierung, Position, Helligkeit und Abdunklung. Für Videos kannst du ein Standbild wählen.
 
 ## Bildschirmfoto
