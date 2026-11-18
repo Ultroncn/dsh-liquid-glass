@@ -1,85 +1,83 @@
-# dsh-liquid-glass
+<div align="center">
 
-[English](README.md) | 中文
+<h1>液态玻璃</h1>
+<p><strong>为 DeepSeek Harness 调整界面通透度，设置图片或视频背景。</strong></p>
+<p><code>dsh-liquid-glass</code></p>
 
-[![npm](https://img.shields.io/npm/v/dsh-liquid-glass?logo=npm)](https://www.npmjs.com/package/dsh-liquid-glass)
-[![license](https://img.shields.io/github/license/Ultroncn/dsh-liquid-glass)](LICENSE)
-[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b68ff)](https://github.com/deepseek-ai/deepseek-harness)
+<p><strong>简体中文</strong> · <a href="README.md">English</a></p>
+<p><a href="CHANGELOG.md">更新日志</a> · <a href="LICENSE">MIT 许可证</a></p>
 
-**[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的主题背景插件**：调整界面通透效果，设置图片或视频背景。
+<p>
+  <a href="https://www.npmjs.com/package/dsh-liquid-glass"><img alt="npm 版本" src="https://img.shields.io/npm/v/dsh-liquid-glass?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/dsh-liquid-glass"><img alt="npm 总下载量" src="https://img.shields.io/npm/dt/dsh-liquid-glass?style=flat-square&amp;label=total%20downloads"></a>
+  <a href="https://github.com/Ultroncn/dsh-liquid-glass/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Ultroncn/dsh-liquid-glass/ci.yml?branch=main&amp;style=flat-square&amp;label=CI"></a>
+  <a href="docs/v0.4.0-validation.md"><img alt="DSH Web" src="https://img.shields.io/badge/DSH-Web-2563eb?style=flat-square"></a>
+  <a href="LICENSE"><img alt="MIT 许可证" src="https://img.shields.io/badge/License-MIT-2ea44f?style=flat-square"></a>
+  <a href="https://dsh-insights.com/p/Ultroncn/dsh-liquid-glass/"><img alt="DSH Insights" src="https://dsh-insights.com/badge/Ultroncn/dsh-liquid-glass.svg"></a>
+</p>
 
-通过官方主题接口提供表面透明化、弹出菜单模糊、自定义壁纸、质感预设、色调和系统无障碍响应。当前版本 **0.5.0**。社区插件，界面尽量复用宿主提供的官方组件。
+<p><a href="https://awesome-dsh-plugin.com/p/Ultroncn/dsh-liquid-glass/">插件市场</a> · <a href="https://www.npmjs.com/package/dsh-liquid-glass">npm</a> · <a href="https://github.com/Ultroncn/dsh-liquid-glass/releases">版本发布</a> · <a href="https://github.com/Ultroncn/dsh-liquid-glass/issues">反馈问题</a></p>
 
-设置卡片与列表描边保留宿主主题的边框颜色，包括自定义的浅色与深色主题。
+</div>
 
-## 安装
+为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）调节界面通透度，设置自己的图片或视频背景。这是一个社区维护的插件。
+
+> **已发布的 npm 0.5.0**包含原版壁纸轮换池和外观设置 JSON 导入、导出。[主分支的更新](https://github.com/Ultroncn/dsh-liquid-glass/pull/30)将轮换移入「背景」，最多 6 个条目单行横向滚动，并移除外观设置导入、导出。这些改动待随新版本发布。
+
+## 安装与打开
+
+在 DSH 插件市场搜索 `dsh-liquid-glass`，核对作者 **Ultroncn** 后安装。使用应用里的「添加插件」输入框时，填写 `dsh-liquid-glass@0.5.0`。
+
+也可以使用命令行。示例使用 `web`，请替换为实际运行 DSH 的 profile。
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass
+dsh plugin --profile web add dsh-liquid-glass@0.5.0 --registry=https://registry.npmjs.org/
 ```
 
-终端中运行上面的命令；如果使用应用的「添加插件」输入框，填写 `dsh-liquid-glass@0.5.0`。
+安装或更新后重启 DSH。打开 **设置 → 通用**，展开「外观」下方的 **主题背景**。总开关同时控制通透效果和图片／视频背景，关闭时保留偏好。
 
-入口为 **设置 → 通用 → 外观下方的「主题背景」**，默认折叠。点击官方箭头展开基础选项；高级选项再次折叠。开关同时控制透明效果和图片／视频背景，关闭不丢失偏好。升级后重启宿主。应用内安装框填写 `dsh-liquid-glass@0.5.0`，不要粘贴完整终端命令。
+从旧版升级到 0.5.0 时也运行上面的命令。它指定版本并使用 npm 官方源。若遇到 `ERR_PNPM_ADDING_TO_ROOT`，在 `add` 后加 `-w`。
 
-## 截图
+## 使用液态玻璃
 
-实际安装包在官方 DSH 0.2.2-rc.2 Web 宿主中的截图；背景为本地原创演示素材。开启阅读保护；浅色使用“清透”（65% 透明度），深色使用“磨砂”（22%）与视频静止画面。
+1. 选择「标准」「清透」或「磨砂」，再调节界面透明度（3%–95%）。
+2. 在「背景」中选择本地图片、图片链接或不超过 100 MiB 的本地 MP4／WebM 视频。视频能否解码取决于浏览器。主背景选择器可先预览，再点「保存」。视频静音循环，可手动暂停。
+3. 在 0.5.0 中，将已保存的背景添加到「壁纸轮换」。轮换默认关闭，开启后在打开应用时判断是否切换。主分支可在「背景」中点「添加图片」批量选图，点缩略图立即使用，也可逐张替换。
+4. 展开「高级设置」可调整浅深色独立外观、阅读保护、色调、菜单模糊、缩放、位置、亮度和暗化。视频可切换为静止画面。「恢复效果默认值」保留背景和总开关。
 
-![折叠入口：位于外观下方](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/01-settings-collapsed.jpg)
+阅读保护默认开启。对话框和浮层保持不透明，内容、代码与菜单至少 94% 不透明，主背景和侧栏仍可调节。它也会暗化明亮的本地或同源媒体，跨域图片使用手动暗化。系统启用减少透明度或增强对比度时，会临时使用磨砂质感，透明度最高 50%。
 
-![质感卡片与背景设置](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/02-settings-background.jpg)
+可用 **Ctrl/Cmd+Shift+G** 切换效果，也可在 DSH「键盘快捷键」中设置「切换液态玻璃」。Linux 网页端默认不绑定，组合冲突时也不自动绑定。
 
-![深色模式下的背景效果](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/03-dark-background.jpg)
+## 界面预览
 
-![浅深色独立设置、阅读保护与静止画面](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/04-video-background.jpg)
+以下为 0.4.0 在 DSH 0.2.2-rc.2 Web 中的截图。
 
-## 功能
+![DSH Web 中的质感和背景设置](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/02-settings-background.jpg)
 
-- **阅读保护**：默认开启；现在让对话框与浮层保持不透明，内容、代码与菜单至少 94% 不透明，主背景和侧边栏继续跟随透明度。高级设置中关闭后恢复原来的全透明风格，并保留原有背景自动暗化功能。
-- **浅深色分别记忆**：在高级设置中选用；开启时两套设置都复制当前外观，之后编辑或恢复默认只影响当前浅色／深色方案，跟随系统和自定义主题同样适用。关闭后两种方案都使用当前外观。背景文件和手动暂停状态共用。
-- **视频静止画面**：保存视频后，在高级设置中选择“动态播放／静止画面”。静止模式保留当前帧，重新打开时显示首帧；仍保留视频元素，不承诺未经测量的省电或性能收益。
+<details>
+<summary>更多截图</summary>
 
-- **统一的设置控件**：复用宿主 Switch、Button、Input、Checkbox、Menu、Modal 和折叠图标。宿主没有公开设置行或滑块组件，相关布局仅作小范围适配，不导入内部样式类。
-- **本地视频背景**：选择 MP4／WebM（不超过 100 MiB，需浏览器支持对应编码）验证后立即预览，点击“保存”后写入本地；静音循环，可暂停／播放、移除。页面不可见或系统启用“减少动态效果”时自动暂停。暂不支持视频 URL、声音、播放列表。
-- **卡片式选择**：三张质感预览卡片；图片和视频共用常驻上传卡片，支持点击或拖放。更换和红色移除按钮位于缩略图浮层内，不再额外显示文件名或媒体描述。
-- **背景草稿**：添加、更换和移除立即预览，点击“保存”才持久化。关闭设置、切换菜单或收起主题背景时，有未保存更改会弹出“保存并离开／放弃更改／继续编辑”；放弃会恢复已保存背景。
-- **背景列表**：在「背景」区可以一次添加多张图片，轮换最多支持 6 个条目，也可加入已保存的视频或链接图片。缩略图始终单行显示，空间不足时可左右滚动。点击缩略图启用该背景，可以在原位置替换图片或移除条目。第一次批量添加达到两项时启动轮换，在「轮换设置」中可暂停或调整顺序和时机。轮换在打开应用时判断。旧版中超过 6 项的列表会保留，移除到有空位以后可以继续添加。
-- **精简默认界面**：仅展开预设、透明度和背景选择；色调、弹出菜单模糊、背景适配与阅读保护放在高级设置。恢复效果默认值保留背景和总开关。
+![外观下方的折叠入口](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/01-settings-collapsed.jpg)
+![深色主题背景](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/03-dark-background.jpg)
+![高级设置和视频静止画面](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/04-video-background.jpg)
 
-- **主题表面透明化**：经官方 ThemeRuntime token 覆盖层生效，透明度主滑块范围为 3%–95%。
-- **标准、清透、磨砂三档预设**，另有冷白、暖灰、墨色；可用透明度滑块微调。
-- **弹出菜单模糊**：可独立关闭；设置卡片使用官方描边色，插件预览面板带内侧高光。宿主原有滤镜作用位置不变。
-- **壁纸控制**：铺满／完整显示／拉伸、九个位置、20%–200% 亮度、0%–60% 手动暗化。启用阅读保护时，视频和明亮的本地或同源图片至少暗化 35%；跨域链接只使用手动暗化。静态大图自动压缩，GIF 保留原始数据。
-- **系统无障碍响应**：减透明或增强对比度启用时，临时使用磨砂质感并将透明度限制为最高 50%，不覆盖用户保存的偏好。
-- **快捷键切换**：经宿主快捷键服务注册 Ctrl/Cmd+Shift+G，在宿主「键盘快捷键」设置中可更改或移除「切换液态玻璃」。Linux 网页端默认不绑定；默认组合冲突时退为未绑定命令。
+</details>
 
-人／助手独立消息不透明度下限，以及任意宿主面板的磨砂／内侧高光，因缺少已核实的官方扩展接口而未实现。参见[本地 API 证据与验证限制](docs/v0.2.0-local-evidence.md)。0.4.0 功能基线的验证记录见 [0.4.0 验证](docs/v0.4.0-validation.md)。
+## 兼容性与数据
 
-## 隐私与兼容性
+插件客户端面向 DSH Web。可查看 [DSH 0.2.2-rc.2 验证记录](docs/v0.4.0-validation.md)、[发布日志](CHANGELOG.md)和[轮换列表更新的 Web 验证](https://github.com/Ultroncn/dsh-liquid-glass/pull/30)。集成细节见[宿主 API 记录](docs/v0.2.0-local-evidence.md)。插件界面提供简体中文和英文。
 
-- 偏好和图片保存在当前站点的 `localStorage`，视频 Blob 保存在 IndexedDB 中；不同浏览器或站点不共享，清除站点数据会删除保存的视频；插件没有服务端组件，也不发送遥测数据。
-- 主要通过 DeepSeek Harness 的公开客户端运行时、语言、插槽、主题和快捷键 API 集成。宿主暂未公开设置离开拦截接口，未保存提示使用面向 0.2.2-rc.2 设置结构的小范围适配，宿主升级后需回归验证。快捷键绑定由宿主管理，网页端用 localStorage，桌面端用设备本地 keybindings.json。
-- 支持亮色和暗色方案。独立外观使用带版本的本地记录，旧设置保留；降级至 0.3.x 会恢复旧版本保存的值。安装后需要重启一次 DSH，以便加载客户端 bundle。
+图片和偏好保存在当前站点的 `localStorage` 中，视频存放在 IndexedDB。插件没有服务端或遥测功能。
+
+卸载可在同一个 profile 中运行 `dsh plugin --profile web remove dsh-liquid-glass`。需要释放媒体存储时，可先在设置里移除背景。卸载会保留站点本地记录。
 
 ## 从源码验证
 
-冒烟测试会在模拟的 DSH 浏览器运行时中执行实际发布的客户端 bundle，覆盖注册、生命周期、设置、持久化、壁纸控制和滑块边界：
-
 ```sh
 npm ci
-node test/smoke.test.mjs
+npm test
 npm pack --dry-run --json
 ```
 
-## 卸载
-
-```sh
-dsh plugin --profile web remove dsh-liquid-glass
-```
-
-卸载前可在设置中移除背景。卸载插件不会自动清理站点的 localStorage 或 IndexedDB；保留的视频仍占用本地存储。不要为了清理本插件而删除宿主的全部站点数据。
-
-## 许可证
-
-MIT
+冒烟测试在模拟的 DSH Web 运行时中运行客户端代码。GitHub CI 使用 Node.js 24。

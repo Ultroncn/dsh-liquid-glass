@@ -1,87 +1,83 @@
-# dsh-liquid-glass
+<div align="center">
 
-English | [中文](README.zh.md)
+<h1>Liquid Glass</h1>
+<p><strong>Translucent surfaces and custom backgrounds for DeepSeek Harness.</strong></p>
+<p><code>dsh-liquid-glass</code></p>
 
-[![npm](https://img.shields.io/npm/v/dsh-liquid-glass?logo=npm)](https://www.npmjs.com/package/dsh-liquid-glass)
-[![license](https://img.shields.io/github/license/Ultroncn/dsh-liquid-glass)](LICENSE)
-[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-plugin-4b68ff)](https://github.com/deepseek-ai/deepseek-harness)
+<p><a href="README.zh.md">简体中文</a> · <strong>English</strong></p>
+<p><a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE">MIT License</a></p>
 
-**Theme backgrounds for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** — translucent surfaces with image or local video backgrounds.
+<p>
+  <a href="https://www.npmjs.com/package/dsh-liquid-glass"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-liquid-glass?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/dsh-liquid-glass"><img alt="npm total downloads" src="https://img.shields.io/npm/dt/dsh-liquid-glass?style=flat-square&amp;label=total%20downloads"></a>
+  <a href="https://github.com/Ultroncn/dsh-liquid-glass/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Ultroncn/dsh-liquid-glass/ci.yml?branch=main&amp;style=flat-square&amp;label=CI"></a>
+  <a href="docs/v0.4.0-validation.md"><img alt="DSH Web" src="https://img.shields.io/badge/DSH-Web-2563eb?style=flat-square"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-2ea44f?style=flat-square"></a>
+  <a href="https://dsh-insights.com/p/Ultroncn/dsh-liquid-glass/"><img alt="DSH Insights" src="https://dsh-insights.com/badge/Ultroncn/dsh-liquid-glass.svg"></a>
+</p>
 
-Translucent theme surfaces and scoped frosted menus over your own background image, with material presets, tint, wallpaper controls, and system accessibility response. Current version: **0.5.0**. A community plugin that reuses the host’s official controls where available.
+<p><a href="https://awesome-dsh-plugin.com/p/Ultroncn/dsh-liquid-glass/">Plugin market</a> · <a href="https://www.npmjs.com/package/dsh-liquid-glass">npm</a> · <a href="https://github.com/Ultroncn/dsh-liquid-glass/releases">Releases</a> · <a href="https://github.com/Ultroncn/dsh-liquid-glass/issues">Issues</a></p>
 
-Settings cards and list outlines retain the Host theme's border colors, including custom light and dark themes.
+</div>
 
-## Install
+Liquid Glass adds adjustable glass surfaces and image or video backgrounds to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). It is maintained by the community.
+
+> **Published package 0.5.0:** includes the original wallpaper rotation pool and JSON appearance import/export. The [changes on main](https://github.com/Ultroncn/dsh-liquid-glass/pull/30) move rotation into Background, keep six thumbnails in one scrollable row, and remove appearance import/export. Those changes are awaiting a package release.
+
+## Install and open
+
+Search for `dsh-liquid-glass` in the DSH plugin market and check the author **Ultroncn**. In the app’s **Add plugin** field, enter `dsh-liquid-glass@0.5.0`.
+
+For the CLI, use the profile your DSH instance runs under. The examples use `web`.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass
+dsh plugin --profile web add dsh-liquid-glass@0.5.0 --registry=https://registry.npmjs.org/
 ```
 
-Run the command in a terminal. In the app’s Add plugin field, enter `dsh-liquid-glass@0.5.0`.
+Restart DSH after installing or updating. Open **Settings → General → Theme background**, just below **Appearance**, and expand the row. The switch applies the glass and background effects together and retains your preferences.
 
-Open **Settings → General → Theme background**, immediately below Appearance. Expand the official chevron for basic options; advanced options remain collapsed. The switch controls glass and image/video backgrounds together, retaining preferences when disabled. Restart the host after upgrading. Enter `dsh-liquid-glass@0.5.0` in the app’s plugin field, not the full terminal command.
+Run the same command to upgrade to 0.5.0. It pins the version and uses the official npm registry. If pnpm reports `ERR_PNPM_ADDING_TO_ROOT`, add `-w` after `add`.
+
+## Use Liquid Glass
+
+1. Choose **Regular**, **Clear**, or **Frost**, then fine-tune the surface transparency (3%–95%).
+2. Under **Background**, add a local image, an image URL, or a local MP4/WebM video up to 100 MiB. Video decoding depends on your browser. Preview the background, then select **Save** for the main background picker. Videos loop muted and can be paused.
+3. In 0.5.0, add the saved background to the **Wallpaper rotation** pool. Rotation starts off and checks for a switch when DSH opens. In the version on main, use **Add images** in **Background** to select several photos at once. Click a thumbnail to use it, or replace it in place.
+4. Open **Advanced settings** for separate light and dark appearances, reading protection, tint, menu frost, fit, position, brightness, and dimming. Saved videos can use a still frame. Resetting the effects preserves the background and the main switch.
+
+Reading protection is on by default. It keeps dialogs and overlays opaque and content, code, and menus at least 94% opaque while leaving the base and sidebar adjustable. It also dims bright local or same-origin media. Cross-origin images use manual dimming. System reduced transparency or increased contrast temporarily selects Frost and caps transparency at 50%.
+
+Use **Ctrl/Cmd+Shift+G** to toggle the effects, or find **Toggle Liquid Glass** in DSH’s keyboard-shortcut settings. Linux Web and conflicting defaults start without a binding.
 
 ## Screenshots
 
-Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original local demonstration media. Reading protection is enabled. Light appearance uses Clear (65% transparency); dark appearance uses Frost (22%) with a still video frame.
+These screenshots show the 0.4.0 interface in DSH 0.2.2-rc.2 Web.
 
-![Collapsed entry below Appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/01-settings-collapsed.jpg)
+![Material and background settings in DSH Web](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/02-settings-background.jpg)
 
-![Material cards and background settings](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/02-settings-background.jpg)
+<details>
+<summary>More screenshots</summary>
 
-![Dark background appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/03-dark-background.jpg)
+![Collapsed settings entry below Appearance](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/01-settings-collapsed.jpg)
+![Dark appearance with a wallpaper](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/03-dark-background.jpg)
+![Advanced settings with still-frame video](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/04-video-background.jpg)
 
-![Separate appearances, reading protection and still video](https://raw.githubusercontent.com/Ultroncn/dsh-liquid-glass/v0.4.0/assets/screenshots/v0.4.0/04-video-background.jpg)
+</details>
 
-## What you get
+## Compatibility and data
 
-- **Reading protection**: enabled by default, now keeps dialogs and overlay surfaces opaque and content/code/menu surfaces at least 94% opaque. Base and sidebar transparency remain adjustable. Turn it off in Advanced for the previous fully translucent style. It also retains automatic background dimming.
-- **Separate light/dark settings**: optionally enable in Advanced. Both start from your current appearance; subsequent edits and Reset affect only the active scheme, including system and custom theme switching. Disabling applies the current appearance to both. Background files and the manual video pause are shared.
-- **Still video frame**: choose Motion or Still frame in Advanced after saving a video. Still frame retains the current frame, or loads the first frame after reopening. It keeps the video element loaded; no CPU/GPU or battery-saving claim is made.
+The client bundle targets DSH Web. Validation includes [DSH 0.2.2-rc.2](docs/v0.4.0-validation.md), the published release checks in the [changelog](CHANGELOG.md), and the Web checks for the [gallery update](https://github.com/Ultroncn/dsh-liquid-glass/pull/30). See the [host API notes](docs/v0.2.0-local-evidence.md) for integration details. The plugin interface provides English and Simplified Chinese.
 
-- **Host controls**: reuse Switch, Button, Input, Checkbox, Menu, Modal and chevron icons. No public settings-row or slider component exists; a small layout adapter handles these without private CSS classes.
-- **Local video backgrounds**: select MP4/WebM up to 100 MiB, with a browser-supported codec. Validated files preview immediately and are saved locally only after Save; playback loops muted; pause, resume and removal are available. Hidden pages and reduced-motion preferences pause playback. No video URLs, audio or playlists.
-- **Visual cards**: three material previews and one permanent image/video uploader, with click or drag-and-drop selection. Replace and red remove controls sit over the thumbnail; no separate filename or media-description row.
-- **Background drafts**: add, replace or remove to preview immediately; Save commits the selection. Closing settings, switching menus or collapsing the section prompts Save and leave, Discard changes or Keep editing. Discard restores the saved background.
-- **Background gallery**: add several images at once from **Background**, with room for up to six saved rotation entries. A saved video or image link can also be added to the collection. Thumbnails stay in one row and scroll horizontally when space is tight. Select a thumbnail to use that background, or replace or remove an image in place. Rotation starts when the first image batch takes the gallery to at least two entries. Open **Rotation settings** to pause rotation or change its order and timing. Rotation is evaluated when the app opens. Existing galleries over six remain usable and can add items once space is freed.
-- **Compact defaults**: presets, transparency and background selection; tint, frost, fit and reading protection live under Advanced. Reset preserves the background and master switch.
+Preferences and images are stored in the site’s `localStorage`. Videos are stored in IndexedDB. The plugin has no server component or telemetry.
 
-- **Theme surface transparency** through the official ThemeRuntime tokens, with a 3%–95% transparency slider.
-- **Regular, Clear, and Frost presets**, plus cool white, warm gray, and ink tints. Manual transparency fine-tunes the selected preset.
-- **Scoped menu frost** with an independent switch, a settings-card rim color, and a material preview with an inset highlight. Host filter placement stays unchanged.
-- **Wallpaper controls**: cover/contain/fill, nine positions, brightness 20%–200%, and manual dim 0%–60%. With reading protection enabled, videos and bright local or same-origin images receive at least 35% dim; cross-origin links use manual dim only. Large static uploads are compressed; GIF data is preserved.
-- **System accessibility response**: reduced transparency or increased contrast selects effective Frost material and limits transparency to 50%, without overwriting saved preferences.
-- **Keyboard toggle**: Ctrl/Cmd+Shift+G through the host shortcut service. Change or remove “Toggle Liquid Glass” in the host Keyboard shortcuts settings. Linux Web starts unbound; conflicting defaults fall back to an unbound command.
-
-Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [0.4.0 validation](docs/v0.4.0-validation.md) for the 0.4.0 feature baseline.
-
-## Privacy and compatibility
-
-The host has no public settings leave-guard API. Unsaved-change protection uses a small adapter for the 0.2.2-rc.2 settings structure and needs regression checks after host updates.
-
-- Preferences and images use origin-local `localStorage`; video Blobs use IndexedDB. Media is not shared across browsers or origins, and clearing site data deletes saved videos; the plugin has no server component and sends no telemetry.
-- The UI integrates through DeepSeek Harness's public client runtime, locale, slot, theme, and shortcut APIs. Shortcut bindings use host-managed device-local storage (localStorage on Web; keybindings.json on Desktop).
-- Light and dark color schemes are supported. Appearance profiles use a versioned local record; legacy settings remain intact, but downgrading to 0.3.x restores those older values. A DSH restart is required once after installation so the client bundle can be loaded.
+To uninstall, run `dsh plugin --profile web remove dsh-liquid-glass` with the same profile. Remove saved backgrounds before uninstalling if you want to free the media storage. Uninstalling retains the site’s local records.
 
 ## Verify from source
 
-The smoke test runs the published client bundle inside a mocked DSH browser runtime and exercises registration, lifecycle, settings, persistence, wallpaper controls and slider bounds:
-
 ```sh
 npm ci
-node test/smoke.test.mjs
+npm test
 npm pack --dry-run --json
 ```
 
-## Uninstall
-
-```sh
-dsh plugin --profile web remove dsh-liquid-glass
-```
-
-Remove the background in settings before uninstalling if desired. Uninstalling does not automatically clear localStorage or IndexedDB; saved videos still consume local storage. Do not erase all host site data just to clean this plugin.
-
-## License
-
-MIT
+The smoke tests exercise the client bundle in a mocked DSH Web runtime. GitHub CI uses Node.js 24.
