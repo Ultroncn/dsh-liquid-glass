@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.0 — 2026-11-19
+
+### 中文
+
+- 新增壁纸轮换池，可按顺序或随机切换已保存的图片和视频。轮换在打开应用时判断，默认关闭。
+- 新增外观设置 JSON 导入和导出。可以分享质感预设、浅深色设置和壁纸引用，导出不包含本地媒体内容。导入先校验并预览，取消会保留现有设置，写入失败时尝试回滚。
+- 在 macOS 的官方 DSH 0.2.2-rc.1 Web 宿主验证了 JSON 下载、导入预览、取消和确认应用。
+
+### English
+
+- Add a wallpaper rotation pool for saved images and videos, with sequential and random order. Rotation is evaluated when the app opens and starts disabled.
+- Add JSON appearance import and export for material presets, light and dark settings, and wallpaper references. Exports exclude local media bytes. Imports validate and preview before applying, preserve settings on cancel, and roll back partial writes on failure.
+- Verified JSON download, import preview, cancellation, and application on the official DSH 0.2.2-rc.1 Web host on macOS.
+
 ## 0.4.2 — 2026-11-16
 
 ### 中文
