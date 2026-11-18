@@ -1532,5 +1532,50 @@ assert(!currentStore.getSnapshot().presetUi.trial && baseAlpha() === 0.62,
   'changing scheme cancels a trial instead of applying it to a different scheme');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
+console.log('\n[32] Recent wallpapers and composition');
+reload();
+storageMap.delete(PROFILE_KEY);
+activeScheme = 'light';
+reload();
+currentActions.setGlass(true);
+currentActions.setGlassSurfaces(true);
+currentActions.resetAppearance();
+const recentImage = index => 'https://example.com/recent-' + index + '.jpg';
+currentActions.setWallpaper(recentImage(0));
+const beforeComposition = gallerySnapshot();
+assert(currentActions.previewWallpaperComposition({ panX: 70, panY: 35, zoom: 150 })
+  && wallpaperLayer().style.backgroundPosition === '70% 35%' && wallpaperLayer().style.transform === 'scale(1.5)'
+  && gallerySnapshot() === beforeComposition, 'position and zoom preview without changing saved settings');
+assert(currentActions.cancelWallpaperComposition() && wallpaperLayer().style.backgroundPosition === 'center center'
+  && gallerySnapshot() === beforeComposition, 'cancelling discards the composition draft');
+assert(currentActions.previewWallpaperComposition({ panX: 80, panY: 40, zoom: 180 })
+  && currentActions.saveWallpaperComposition(), 'saving applies the draft composition');
+reload();
+const waitRecent = async label => {
+  for (let i = 0; i < 700; i++) {
+    if (label(currentStore.getSnapshot().recentWallpapers)) return true;
+    await new Promise(resolve => setImmediate(resolve));
+  }
+  return false;
+};
+assert(wallpaperLayer().style.transform === 'scale(1.8)' && wallpaperLayer().style.backgroundPosition === '80% 40%',
+  'position and zoom are restored after reopening');
+for (let i = 1; i <= 12; i++) currentActions.setWallpaper(recentImage(i));
+assert(await waitRecent(items => items?.length === 12 && items[0].url === recentImage(12)) &&
+  currentStore.getSnapshot().recentWallpapers.every(item => item.url !== recentImage(0)),
+  'the history retains the most recent twelve distinct saved images');
+currentActions.setWallpaper(recentImage(13));
+currentActions.setOption('position', 'left center');
+assert(await waitRecent(items => items?.[0]?.url === recentImage(13)), 'new history entries are visible after persisting');
+const oldRecentItem = currentStore.getSnapshot().recentWallpapers.find(item => item.url === recentImage(12));
+assert(currentActions.restoreRecentWallpaper(oldRecentItem.id) && storageMap.get(WALLPAPER_KEY) === recentImage(12)
+  && wallpaperLayer().style.transform === 'scale(1.8)' && wallpaperLayer().style.backgroundPosition === '80% 40%',
+  'restoring a recent wallpaper applies its previously saved composition');
+assert(await waitRecent(items => items?.[0]?.id === oldRecentItem.id), 'restoring a recent wallpaper moves it to the front');
+assert(await currentActions.removeRecentWallpaper(oldRecentItem.id)
+  && currentStore.getSnapshot().recentWallpapers.every(item => item.id !== oldRecentItem.id)
+  && storageMap.get(WALLPAPER_KEY) === recentImage(12), 'removing a history entry keeps the active wallpaper');
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);
