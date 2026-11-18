@@ -22,7 +22,6 @@ function assert(cond, label) {
 //#region mocks
 const storageMap = new Map();
 const createdElements = [];
-const downloadedFiles = [];
 const headChildren = [];
 const bodyChildren = [];
 const canvasCalls = [];
@@ -115,7 +114,6 @@ function makeElement(tag) {
     },
     contains() { return true; },
   };
-  if (tag === 'a') el.click = () => downloadedFiles.push({ name: el.download, url: el.href });
   if (tag === 'video') {
     Object.assign(el, { videoWidth: 640, paused: true,
       pause() { this.paused = true; }, load() {},
@@ -1224,40 +1222,45 @@ const drawRotation = () => {
   return mountComponent(node.type, () => ({ ...node.props, rotation: currentStore.getSnapshot().rotation, wallpaper: currentStore.getSnapshot().wallpaper, video: currentStore.getSnapshot().video }))();
 };
 let rotationTree = drawRotation();
-assert(!!findNode(rotationTree, (node) => node.props?.children === t('rotation.empty')), 'an empty pool shows its hint');
-const enableCheck = findNode(rotationTree, (node) => node.type?.name === 'Check' && node.props.label === t('rotation.enable'));
-assert(!!enableCheck && enableCheck.props.checked === false, 'rotation checkbox reflects the disabled state');
-enableCheck.type(enableCheck.props).props.onChange(true);
-assert(currentStore.getSnapshot().rotation.enabled === true && currentStore.getSnapshot().rotation.items.length === 1, 'rotation checkbox enables rotation and seeds the pool');
-rotationTree = drawRotation();
-assert(!!findNode(rotationTree, (node) => node.type?.name === 'Choices' && node.props.label === t('rotation.order')), 'rotation order control appears when enabled');
-const nextButton = findNode(rotationTree, (node) => node.type === officialUI.Button && node.props.children === t('rotation.next'));
-assert(!!nextButton && nextButton.props.disabled === true, 'next button is disabled with a one-item pool');
-const addButton = findNode(rotationTree, (node) => node.type === officialUI.Button && node.props.children === t('rotation.addCurrent'));
-assert(!!addButton && addButton.props.disabled === true, 'add-current button is disabled while the current background is already pooled');
+const multiInput = findNode(rotationTree, node => node.type === 'input' && node.props.multiple === true);
+assert(multiInput?.props['aria-label'] === t('rotation.addImages'), 'background settings have a direct multi-image file picker');
+assert(!findNode(rotationTree, node => node.type === 'details'), 'an empty pool hides the rotation settings');
+const addButton = () => findNode(drawRotation(), node => node.type === officialUI.Button && node.props.children === t('rotation.addCurrent'));
+assert(!!addButton(), 'the first saved background can join the pool');
+addButton().props.onClick();
+assert(currentStore.getSnapshot().rotation.items.length === 1 && !addButton(),
+  'a pooled background is not offered as a duplicate');
+assert(!findNode(drawRotation(), node => node.type === 'details'), 'a one-item pool hides the rotation settings');
 currentActions.setWallpaper('data:image/png;base64,ui-b');
+assert(!!addButton(), 'a new current background can join the collection');
+addButton().props.onClick();
+currentActions.setRotationEnabled(true);
+assert(currentStore.getSnapshot().rotation.items.length === 2, 'add-current retains both saved backgrounds');
 rotationTree = drawRotation();
-const addButton2 = findNode(rotationTree, (node) => node.type === officialUI.Button && node.props.children === t('rotation.addCurrent'));
-assert(!!addButton2 && addButton2.props.disabled === false, 'add-current button is available for a new background');
-addButton2.props.onClick();
-assert(currentStore.getSnapshot().rotation.items.length === 2, 'add-current button adds the saved background to the pool');
+const strip = findNode(rotationTree, node => node.props?.['data-liquid-glass-wallpaper-strip'] === '');
+assert(strip?.props.style.overflowX === 'auto' && strip.props.style.flexWrap === 'nowrap'
+  && strip.props.children.every(tile => tile.props.style.flexShrink === 0), 'thumbnails keep their width in one horizontally scrolling strip');
+const selectFirst = findNode(rotationTree, node => node.type === officialUI.Button && node.props['aria-label'] === `${t('rotation.select')} 1`);
+selectFirst.props.onClick();
+assert(currentStore.getSnapshot().wallpaper === 'data:image/png;base64,ui-a' && currentStore.getSnapshot().rotation.index === 0,
+  'clicking a thumbnail selects that wallpaper');
 rotationTree = drawRotation();
-const nextButton2 = findNode(rotationTree, (node) => node.type === officialUI.Button && node.props.children === t('rotation.next'));
-assert(!!nextButton2 && nextButton2.props.disabled === false, 'next button is enabled with two pool entries');
-nextButton2.props.onClick();
-assert(currentStore.getSnapshot().wallpaper === 'data:image/png;base64,ui-a' && currentStore.getSnapshot().rotation.index === 0, 'next button switches to the next pool entry');
+const nextButton = findNode(rotationTree, node => node.type === officialUI.Button && node.props.children === t('rotation.next'));
+assert(findNode(rotationTree, node => node.type === 'details') && nextButton, 'two pool entries expose folded rotation controls');
+nextButton.props.onClick();
+assert(currentStore.getSnapshot().wallpaper === 'data:image/png;base64,ui-b', 'next advances from the selected thumbnail');
 rotationTree = drawRotation();
-const orderChoice = findNode(rotationTree, (node) => node.type?.name === 'Choices' && node.props.label === t('rotation.order'));
+const orderChoice = findNode(rotationTree, node => node.type?.name === 'Choices' && node.props.label === t('rotation.order'));
 const orderTree = mountComponent(orderChoice.type, () => orderChoice.props)();
-findNode(orderTree, (node) => node.type === officialUI.Menu).props.onSelect('random');
+findNode(orderTree, node => node.type === officialUI.Menu).props.onSelect('random');
 assert(currentStore.getSnapshot().rotation.order === 'random', 'rotation order UI is wired to the persisted action');
 rotationTree = drawRotation();
-const timingChoice = findNode(rotationTree, (node) => node.type?.name === 'Choices' && node.props.label === t('rotation.timing'));
+const timingChoice = findNode(rotationTree, node => node.type?.name === 'Choices' && node.props.label === t('rotation.timing'));
 const timingTree = mountComponent(timingChoice.type, () => timingChoice.props)();
-findNode(timingTree, (node) => node.type === officialUI.Menu).props.onSelect('daily');
+findNode(timingTree, node => node.type === officialUI.Menu).props.onSelect('daily');
 assert(currentStore.getSnapshot().rotation.timing === 'daily', 'rotation timing UI is wired to the persisted action');
 rotationTree = drawRotation();
-const removeButtons = findAll(rotationTree, (node) => node.type === officialUI.Button && node.props.children === t('rotation.remove'));
+const removeButtons = findAll(rotationTree, node => node.type === officialUI.Button && node.props['aria-label']?.startsWith(t('rotation.remove')));
 assert(removeButtons.length === 2, 'each pool entry has a remove button');
 removeButtons[0].props.onClick();
 assert(currentStore.getSnapshot().rotation.items.length === 1, 'remove button drops its pool entry');
@@ -1298,95 +1301,64 @@ drawMissingThumbnail.unmount();
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 
-console.log('\n[27] Appearance transfer');
+console.log('\n[27] Compact background library and advanced layout');
 reload();
 currentActions.setGlass(true);
-currentActions.setWallpaper('data:image/png;base64,cHJpdmF0ZQ==');
-currentActions.setPreset('clear');
-currentActions.setRotationOrder('random');
-setRotationRecord({
-  enabled: false, order: 'random', timing: 'daily',
-  items: [
-    { id: 'local-image', kind: 'image', url: 'data:image/png;base64,cHJpdmF0ZQ==' },
-    { id: 'public-image', kind: 'image', url: 'https://example.com/wallpaper.png' },
-    { id: 'private-image', kind: 'image', url: 'https://example.com/photo?token=private' },
-  ],
-});
-const exportedAppearance = currentActions.exportAppearance();
-const exportedSettings = JSON.parse(exportedAppearance);
-assert(exportedSettings.version === 1 && exportedSettings.schema === 'dsh-liquid-glass-appearance',
-  'appearance export declares its format and version');
-assert(exportedSettings.profiles.light.options.preset === 'clear' && exportedSettings.rotation.order === 'random'
-  && exportedSettings.rotation.items.length === 3, 'appearance export includes glass, preset and rotation preferences');
-assert(!exportedAppearance.includes('base64') && !exportedAppearance.includes('token=private')
-  && exportedAppearance.includes('https://example.com/wallpaper.png'), 'appearance export omits embedded media and private URL parameters');
-
-currentActions.setPreset('frost');
-const snapshotForImport = () => [...storageMap.entries()].sort(([a], [b]) => a.localeCompare(b));
-const beforeImport = snapshotForImport();
-const rejectedImportVersion = await currentActions.previewAppearanceImport(JSON.stringify({ ...exportedSettings, version: 0 }));
-const invalidImport = await currentActions.previewAppearanceImport('{invalid');
-const wrongOptions = structuredClone(exportedSettings);
-wrongOptions.profiles.light.options.dim = 200;
-const invalidOptions = await currentActions.previewAppearanceImport(JSON.stringify(wrongOptions));
-const badImportUrl = structuredClone(exportedSettings);
-badImportUrl.wallpaper = { kind: 'image', url: 'javascript:alert(0)' };
-const invalidUrl = await currentActions.previewAppearanceImport(JSON.stringify(badImportUrl));
-assert(rejectedImportVersion.error === 'transfer.version' && [invalidImport, invalidOptions, invalidUrl].every(result => result.error === 'transfer.invalid'),
-  'preview rejects unsupported versions, malformed files, invalid options and unsafe URLs');
-assert(JSON.stringify(beforeImport) === JSON.stringify(snapshotForImport()), 'rejecting invalid imports preserves settings');
-
-const previewedAppearance = await currentActions.previewAppearanceImport(exportedAppearance);
-assert(previewedAppearance.config.profiles.light.options.preset === 'clear'
-  && JSON.stringify(beforeImport) === JSON.stringify(snapshotForImport()), 'preparing or cancelling a preview does not change preferences');
+currentActions.setWallpaper('data:image/png;base64,existing-wall');
+setRotationRecord({ version: 1, enabled: false, order: 'sequential', timing: 'refresh', items: [], index: 0, lastSwitch: 0 });
+reload();
+const newImages = ['data:image/png;base64,new-a', 'data:image/png;base64,new-b', 'data:image/png;base64,new-c'];
+assert(typeof currentActions.addRotationImages === 'function'
+  && currentActions.addRotationImages(newImages) === true, 'multiple selected images can be added with one action');
+let gallery = currentStore.getSnapshot().rotation;
+assert(gallery.items.length === 4 && gallery.items[0].url === 'data:image/png;base64,existing-wall' && gallery.enabled,
+  'the first batch retains the saved background and starts rotation');
+const gallerySnapshot = () => JSON.stringify([...storageMap.entries()].sort(([a], [b]) => a.localeCompare(b)));
+const beforeExcess = gallerySnapshot();
+assert(currentActions.addRotationImages(['data:image/png;base64,extra-a','data:image/png;base64,extra-b','data:image/png;base64,extra-c']) === 'limit'
+  && gallerySnapshot() === beforeExcess, 'a batch that exceeds six changes neither the library nor the current background');
+assert(currentActions.addRotationImages([newImages[0], 'data:image/png;base64,new-d', 'data:image/png;base64,new-e']) === true
+  && currentStore.getSnapshot().rotation.items.length === 6, 'duplicates are ignored when reaching the six-item limit');
+const oldGalleryId = gallery.items[0].id;
+const replacement = 'data:image/png;base64,replacement';
+const beforeReplacement = gallerySnapshot();
 windowMock.localStorage.setItem = (key, value) => {
-  if (key === ROTATION_KEY) throw new DOMException('Storage full', 'QuotaExceededError');
-  return originalSetItem(key, value);
+  if (key === WALLPAPER_KEY) throw new DOMException('Storage full','QuotaExceededError');
+  return originalSetItem2(key, value);
 };
-const failedAppearanceImport = await currentActions.importAppearance(previewedAppearance.config);
-windowMock.localStorage.setItem = originalSetItem;
-assert(failedAppearanceImport.error === 'transfer.applyFailed' && JSON.stringify(beforeImport) === JSON.stringify(snapshotForImport())
-  && currentStore.getSnapshot().options.preset === 'frost', 'failed apply rolls back saved settings and keeps the prior appearance');
-
-const appliedAppearance = await currentActions.importAppearance(previewedAppearance.config);
-assert(!appliedAppearance.error && currentStore.getSnapshot().options.preset === 'clear'
-  && currentStore.getSnapshot().rotation.order === 'random' && currentStore.getSnapshot().rotation.items.length === 3,
-  'confirming a valid import restores the exported appearance and locally known media references');
-
-const crossDevice = structuredClone(exportedSettings);
-crossDevice.wallpaper = { kind: 'video', id: 'unknown-video', name: 'missing.mp4' };
-const crossDevicePreview = await currentActions.previewAppearanceImport(JSON.stringify(crossDevice));
-assert(crossDevicePreview.missing === 1 && !crossDevicePreview.error, 'preview reports media from another device without fetching it');
-const existingWallpaper = storageMap.get(WALLPAPER_KEY);
-await currentActions.importAppearance(crossDevicePreview.config);
-assert(storageMap.get(WALLPAPER_KEY) === existingWallpaper, 'applying preferences keeps the current wallpaper if the referenced media is absent');
-const transferRow = mountComponent(ctxCalls.slotRegister.at(-1).component, () => ({
-  t, useStore: select => select(currentStore.getSnapshot()), ...currentActions,
-}));
-findNode(transferRow(), node => node.type?.name === 'Expander' && node.props.label === t('row.configure')).props.onClick();
-const transferSection = findNode(transferRow(), node => node.type?.name === 'TransferSection');
-const drawTransfer = mountComponent(transferSection.type, () => transferSection.props);
-const transferFile = new File([exportedAppearance], 'appearance.dsh-theme.json', { type: 'application/json' });
-const browseTransfer = async () => findNode(drawTransfer(), node => node.type === 'input').props.onChange({ target: { files: [transferFile], value: 'test' } });
-findNode(drawTransfer(), node => node.type === officialUI.Button && node.props.children === t('transfer.export')).props.onClick();
-const download = downloadedFiles.at(-1);
-assert(download?.name === 'appearance.dsh-theme.json' && JSON.parse(await (await fetch(download.url)).text()).version === 1,
-  'export button downloads a versioned JSON file');
-currentActions.setPreset('frost');
-const beforeCancel = snapshotForImport();
-await browseTransfer();
-const transferModal = () => findNode(drawTransfer(), node => node.type === officialUI.Modal);
-assert(transferModal().props.open === true, 'choosing a valid file opens the preview dialog');
-transferModal().props.onClose();
-assert(!transferModal().props.open && JSON.stringify(beforeCancel) === JSON.stringify(snapshotForImport()),
-  'closing the import modal cancels without changing persisted settings');
-await browseTransfer();
-await transferModal().props.footer.find(node => node.props.children === t('transfer.apply')).props.onClick();
-assert(!transferModal().props.open && currentStore.getSnapshot().options.preset === 'clear',
-  'confirming in the import dialog applies the previewed configuration');
-drawTransfer.unmount();
-transferRow.unmount();
-
+assert(currentActions.replaceRotationImage(oldGalleryId, replacement) === 'saveFailed'
+  && gallerySnapshot() === beforeReplacement, 'a failed active-image replacement leaves the old collection and active wallpaper in place');
+windowMock.localStorage.setItem = originalSetItem2;
+assert(currentActions.replaceRotationImage(oldGalleryId, replacement) === true
+  && currentStore.getSnapshot().rotation.items[0].id === oldGalleryId
+  && currentStore.getSnapshot().rotation.items[0].url === replacement
+  && currentStore.getSnapshot().wallpaper === replacement, 'replacing a pooled image keeps its order and updates it if active');
+assert(currentActions.removeRotationItem(currentStore.getSnapshot().rotation.items[5].id) === true, 'an image can be removed to free a gallery slot');
+const unpooledWallpaper = 'data:image/png;base64,outside-collection';
+currentActions.setWallpaper(unpooledWallpaper);
+assert(currentActions.addRotationImages(['data:image/png;base64,fill-last-slot']) === true
+  && currentStore.getSnapshot().rotation.items.length === 6
+  && currentStore.getSnapshot().wallpaper === unpooledWallpaper, 'a wallpaper outside an existing collection does not consume the final slot');
+setRotationRecord({ version: 1, enabled: false, order: 'sequential', timing: 'refresh', items: [], index: 0, lastSwitch: 0 });
+reload();
+const fullGallery = Array.from({ length: 6 }, (_, i) => `data:image/png;base64,full-gallery-${i}`);
+assert(currentActions.addRotationImages(fullGallery) === true
+  && currentStore.getSnapshot().rotation.items.every((item, i) => item.url === fullGallery[i])
+  && currentStore.getSnapshot().rotation.items.length === 6
+  && currentStore.getSnapshot().wallpaper === unpooledWallpaper, 'the first batch can fill all six slots without replacing the current wallpaper');
+assert(!currentActions.exportAppearance && !currentActions.importAppearance && !currentActions.previewAppearanceImport,
+  'the appearance backup actions are removed');
+let compactRow = mountRow();
+const compactExpander = findNode(compactRow, node => node.type?.name === 'Expander' && node.props.label === t('row.configure'));
+if (!compactExpander.props.open) compactExpander.props.onClick();
+compactRow = mountRow();
+const backgroundGroup = findNode(compactRow, node => node.props?.['aria-label'] === t('wallpaper.title') && node.props?.role === 'group');
+assert(backgroundGroup && findNode(backgroundGroup, node => node.type?.name === 'WallpaperSection')
+  && findNode(backgroundGroup, node => node.type?.name === 'RotationSection'), 'the photo library is inside the background group');
+const advancedExpander = findNode(compactRow, node => node.type?.name === 'Expander' && node.props.label === t('row.advanced'));
+if (!advancedExpander.props.open) advancedExpander.props.onClick();
+const advancedPanel = findNode(mountRow(), node => node.props?.id === advancedExpander.props.controls);
+assert(advancedPanel?.props.style.paddingInlineStart === '28px', 'advanced controls align under the heading after the disclosure gutter');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
