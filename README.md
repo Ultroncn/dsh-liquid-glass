@@ -56,6 +56,10 @@ Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original 
 
 Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [0.4.0 validation](docs/v0.4.0-validation.md) for the 0.4.0 feature baseline.
 
+## Share appearance settings
+
+Use **Export settings** and **Import settings** in the Theme background panel to share a versioned JSON file. Review the presets, rotation pool, and missing media before applying. Cancelling keeps the previous appearance. Unavailable local media is skipped and the current background is retained if the selected reference is missing. The file contains compatible wallpaper references and metadata, with local image and video bytes and URLs with query parameters excluded.
+
 ## Privacy and compatibility
 
 The host has no public settings leave-guard API. Unsaved-change protection uses a small adapter for the 0.2.2-rc.2 settings structure and needs regression checks after host updates.
