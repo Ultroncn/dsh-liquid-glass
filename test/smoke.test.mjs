@@ -22,6 +22,7 @@ function assert(cond, label) {
 //#region mocks
 const storageMap = new Map();
 const createdElements = [];
+const downloadedFiles = [];
 const headChildren = [];
 const bodyChildren = [];
 const canvasCalls = [];
@@ -114,6 +115,7 @@ function makeElement(tag) {
     },
     contains() { return true; },
   };
+  if (tag === 'a') el.click = () => downloadedFiles.push({ name: el.download, url: el.href });
   if (tag === 'video') {
     Object.assign(el, { videoWidth: 640, paused: true,
       pause() { this.paused = true; }, load() {},
@@ -1293,6 +1295,98 @@ assert(missingThumbnail.type === 'div' && missingThumbnail.props.children === t(
   && missingThumbnail.props.style.width === '64px' && missingThumbnail.props.style.height === '40px',
   'a pooled video with no Blob falls back to the video placeholder');
 drawMissingThumbnail.unmount();
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
+
+console.log('\n[27] Appearance transfer');
+reload();
+currentActions.setGlass(true);
+currentActions.setWallpaper('data:image/png;base64,cHJpdmF0ZQ==');
+currentActions.setPreset('clear');
+currentActions.setRotationOrder('random');
+setRotationRecord({
+  enabled: false, order: 'random', timing: 'daily',
+  items: [
+    { id: 'local-image', kind: 'image', url: 'data:image/png;base64,cHJpdmF0ZQ==' },
+    { id: 'public-image', kind: 'image', url: 'https://example.com/wallpaper.png' },
+    { id: 'private-image', kind: 'image', url: 'https://example.com/photo?token=private' },
+  ],
+});
+const exportedAppearance = currentActions.exportAppearance();
+const exportedSettings = JSON.parse(exportedAppearance);
+assert(exportedSettings.version === 1 && exportedSettings.schema === 'dsh-liquid-glass-appearance',
+  'appearance export declares its format and version');
+assert(exportedSettings.profiles.light.options.preset === 'clear' && exportedSettings.rotation.order === 'random'
+  && exportedSettings.rotation.items.length === 3, 'appearance export includes glass, preset and rotation preferences');
+assert(!exportedAppearance.includes('base64') && !exportedAppearance.includes('token=private')
+  && exportedAppearance.includes('https://example.com/wallpaper.png'), 'appearance export omits embedded media and private URL parameters');
+
+currentActions.setPreset('frost');
+const snapshotForImport = () => [...storageMap.entries()].sort(([a], [b]) => a.localeCompare(b));
+const beforeImport = snapshotForImport();
+const rejectedImportVersion = await currentActions.previewAppearanceImport(JSON.stringify({ ...exportedSettings, version: 0 }));
+const invalidImport = await currentActions.previewAppearanceImport('{invalid');
+const wrongOptions = structuredClone(exportedSettings);
+wrongOptions.profiles.light.options.dim = 200;
+const invalidOptions = await currentActions.previewAppearanceImport(JSON.stringify(wrongOptions));
+const badImportUrl = structuredClone(exportedSettings);
+badImportUrl.wallpaper = { kind: 'image', url: 'javascript:alert(0)' };
+const invalidUrl = await currentActions.previewAppearanceImport(JSON.stringify(badImportUrl));
+assert(rejectedImportVersion.error === 'transfer.version' && [invalidImport, invalidOptions, invalidUrl].every(result => result.error === 'transfer.invalid'),
+  'preview rejects unsupported versions, malformed files, invalid options and unsafe URLs');
+assert(JSON.stringify(beforeImport) === JSON.stringify(snapshotForImport()), 'rejecting invalid imports preserves settings');
+
+const previewedAppearance = await currentActions.previewAppearanceImport(exportedAppearance);
+assert(previewedAppearance.config.profiles.light.options.preset === 'clear'
+  && JSON.stringify(beforeImport) === JSON.stringify(snapshotForImport()), 'preparing or cancelling a preview does not change preferences');
+windowMock.localStorage.setItem = (key, value) => {
+  if (key === ROTATION_KEY) throw new DOMException('Storage full', 'QuotaExceededError');
+  return originalSetItem(key, value);
+};
+const failedAppearanceImport = await currentActions.importAppearance(previewedAppearance.config);
+windowMock.localStorage.setItem = originalSetItem;
+assert(failedAppearanceImport.error === 'transfer.applyFailed' && JSON.stringify(beforeImport) === JSON.stringify(snapshotForImport())
+  && currentStore.getSnapshot().options.preset === 'frost', 'failed apply rolls back saved settings and keeps the prior appearance');
+
+const appliedAppearance = await currentActions.importAppearance(previewedAppearance.config);
+assert(!appliedAppearance.error && currentStore.getSnapshot().options.preset === 'clear'
+  && currentStore.getSnapshot().rotation.order === 'random' && currentStore.getSnapshot().rotation.items.length === 3,
+  'confirming a valid import restores the exported appearance and locally known media references');
+
+const crossDevice = structuredClone(exportedSettings);
+crossDevice.wallpaper = { kind: 'video', id: 'unknown-video', name: 'missing.mp4' };
+const crossDevicePreview = await currentActions.previewAppearanceImport(JSON.stringify(crossDevice));
+assert(crossDevicePreview.missing === 1 && !crossDevicePreview.error, 'preview reports media from another device without fetching it');
+const existingWallpaper = storageMap.get(WALLPAPER_KEY);
+await currentActions.importAppearance(crossDevicePreview.config);
+assert(storageMap.get(WALLPAPER_KEY) === existingWallpaper, 'applying preferences keeps the current wallpaper if the referenced media is absent');
+const transferRow = mountComponent(ctxCalls.slotRegister.at(-1).component, () => ({
+  t, useStore: select => select(currentStore.getSnapshot()), ...currentActions,
+}));
+findNode(transferRow(), node => node.type?.name === 'Expander' && node.props.label === t('row.configure')).props.onClick();
+const transferSection = findNode(transferRow(), node => node.type?.name === 'TransferSection');
+const drawTransfer = mountComponent(transferSection.type, () => transferSection.props);
+const transferFile = new File([exportedAppearance], 'appearance.dsh-theme.json', { type: 'application/json' });
+const browseTransfer = async () => findNode(drawTransfer(), node => node.type === 'input').props.onChange({ target: { files: [transferFile], value: 'test' } });
+findNode(drawTransfer(), node => node.type === officialUI.Button && node.props.children === t('transfer.export')).props.onClick();
+const download = downloadedFiles.at(-1);
+assert(download?.name === 'appearance.dsh-theme.json' && JSON.parse(await (await fetch(download.url)).text()).version === 1,
+  'export button downloads a versioned JSON file');
+currentActions.setPreset('frost');
+const beforeCancel = snapshotForImport();
+await browseTransfer();
+const transferModal = () => findNode(drawTransfer(), node => node.type === officialUI.Modal);
+assert(transferModal().props.open === true, 'choosing a valid file opens the preview dialog');
+transferModal().props.onClose();
+assert(!transferModal().props.open && JSON.stringify(beforeCancel) === JSON.stringify(snapshotForImport()),
+  'closing the import modal cancels without changing persisted settings');
+await browseTransfer();
+await transferModal().props.footer.find(node => node.props.children === t('transfer.apply')).props.onClick();
+assert(!transferModal().props.open && currentStore.getSnapshot().options.preset === 'clear',
+  'confirming in the import dialog applies the previewed configuration');
+drawTransfer.unmount();
+transferRow.unmount();
+
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
