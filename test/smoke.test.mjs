@@ -729,13 +729,13 @@ currentActions.setPreset('clear');
 currentActions.setAlpha(95);
 const savedOptions = storageMap.get(OPTIONS_KEY);
 reducedTransparency.change(true);
-assert(baseAlpha() === 0.5 && currentStore.getSnapshot().alpha === 0.5 && currentStore.getSnapshot().options.preset === 'frost' && material()['--dsw-menu-backdrop-filter'].light === 'blur(20px) saturate(200%)', 'reduced transparency applies Frost and caps transparency at 50%');
+assert(baseAlpha() === 1 && currentStore.getSnapshot().alpha === 1 && material()['--dsw-menu-backdrop-filter'].light === 'none', 'reduced transparency uses an opaque surface without a menu backdrop filter');
 let accessibleRow = renderRow();
-assert(findNode(accessibleRow, (node) => node.type?.name === 'Slider' && node.props.label === t('glass.alpha')).props.max === 50 && findNode(accessibleRow, (node) => node.props?.children === t('glass.accessibility')).props.role === 'status', 'settings show the effective cap and accessible status');
+assert(!findNode(accessibleRow, (node) => node.type?.name === 'Slider' && node.props.label === t('glass.alpha')) && findNode(accessibleRow, (node) => node.props?.children === t('glass.opaqueSystem')).props.role === 'status', 'settings explain the system’s opaque appearance and hide its overridden slider');
 assert(findNode(accessibleRow, node => node.type?.name === 'MaterialCards').props.disabled && currentActions.setPreset('clear') === false, 'preset controls cannot bypass an active system preference');
 assert(storageMap.get(ALPHA_KEY) === '0.05' && storageMap.get(OPTIONS_KEY) === savedOptions, 'system protection never overwrites saved appearance preferences');
 reload();
-assert(baseAlpha() === 0.5 && currentStore.getSnapshot().accessibility, 'system protection is read on boot, not only on change');
+assert(baseAlpha() === 1 && currentStore.getSnapshot().accessibility, 'system protection is read on boot, not only on change');
 increasedContrast.change(true);
 reducedTransparency.change(false);
 assert(baseAlpha() === 0.5 && currentStore.getSnapshot().accessibility, 'increased contrast independently keeps protection active');
@@ -1575,6 +1575,29 @@ assert(await waitRecent(items => items?.[0]?.id === oldRecentItem.id), 'restorin
 assert(await currentActions.removeRecentWallpaper(oldRecentItem.id)
   && currentStore.getSnapshot().recentWallpapers.every(item => item.id !== oldRecentItem.id)
   && storageMap.get(WALLPAPER_KEY) === recentImage(12), 'removing a history entry keeps the active wallpaper');
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
+console.log('\n[33] Diagnostics and opaque accessibility fallback');
+reload();
+currentActions.setGlass(true);
+currentActions.setGlassSurfaces(true);
+currentActions.setWallpaper('https://example.com/private-wallpaper.jpg?token=diagnostic-test-secret');
+const report = currentActions.getDiagnostics();
+assert(report.validation.dshVersion === '0.2.2-rc.1' && report.validation.checkedOn === '2026-11-19'
+  && report.hooks.settingsMounted && report.hooks.themeTokensApplied && report.background.kind === 'image',
+  'diagnostics report verified host metadata and live hook status');
+assert(!JSON.stringify(report).includes('example.com') && !JSON.stringify(report).includes('diagnostic-test-secret'),
+  'diagnostics include status but exclude wallpaper links and credentials');
+assert(findNode(renderRow(), node => node.type?.name === 'DiagnosticsPanel'), 'advanced settings include a local diagnostics report');
+const legacyTransparencySnapshot = gallerySnapshot();
+reducedTransparency.change(true);
+const highAccessibility = currentActions.getDiagnostics();
+assert(baseAlpha() === 1 && !dimLayer() && material()['--dsw-menu-backdrop-filter'].light === 'none'
+  && highAccessibility.accessibility.reducedTransparency && !highAccessibility.background.rendered
+  && gallerySnapshot() === legacyTransparencySnapshot, 'reduced transparency hides media and glass while preserving saved preferences');
+reducedTransparency.change(false);
+assert(wallpaperLayer() && currentActions.getDiagnostics().background.rendered && gallerySnapshot() === legacyTransparencySnapshot,
+  'removing the accessibility preference restores the saved background');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);

@@ -70,7 +70,7 @@ dsh plugin --profile web add dsh-liquid-glass@0.5.0 --registry=https://registry.
 
 ## 兼容性与数据
 
-插件客户端面向 DSH Web。可查看 [DSH 0.2.2-rc.2 验证记录](docs/v0.4.0-validation.md)、[发布日志](CHANGELOG.md)和[轮换列表更新的 Web 验证](https://github.com/Ultroncn/dsh-liquid-glass/pull/30)。集成细节见[宿主 API 记录](docs/v0.2.0-local-evidence.md)。插件界面提供简体中文和英文。
+插件客户端面向 DSH Web。可查看 [DSH 0.2.2-rc.2 验证记录](docs/v0.4.0-validation.md)、[发布日志](CHANGELOG.md)和[轮换列表更新的 Web 验证](https://github.com/Ultroncn/dsh-liquid-glass/pull/30)。集成细节见[宿主 API 记录](docs/v0.2.0-local-evidence.md)。插件界面提供简体中文和英文。主分支的「高级设置 → 诊断与兼容性」展示实测宿主版本、日期及当前接口状态，可复制 JSON 报告。系统开启减少透明度时，主分支临时隐藏背景并使用不透明界面，偏好仍保留。
 
 图片和偏好保存在当前站点的 `localStorage` 中，视频和最近使用的图片记录存放在 IndexedDB。插件没有服务端或遥测功能。
 
