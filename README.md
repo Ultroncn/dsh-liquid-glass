@@ -49,7 +49,7 @@ On main, turn off **Glass surfaces** to keep the background with the host’s na
 
 On main, **Wallpaper opacity** fades the image or video. **Menu glass blur** only affects the supported menu and material preview filters.
 
-Reading protection is on by default. It keeps dialogs and overlays opaque and content, code, and menus at least 94% opaque while leaving the base and sidebar adjustable. It also dims bright local or same-origin media. Cross-origin images use manual dimming. System reduced transparency or increased contrast temporarily selects Frost and caps transparency at 50%.
+Reading protection is on by default. It keeps dialogs and overlays opaque and content, code, and menus at least 94% opaque while leaving the base and sidebar adjustable. It also dims bright local or same-origin media. Cross-origin images are excluded from automatic sampling. On main, Advanced settings adds independent automatic dim and vignette controls and an [estimated content contrast readout](docs/reading-protection-contrast.md). System reduced transparency or increased contrast temporarily selects Frost and caps transparency at 50%.
 
 Use **Ctrl/Cmd+Shift+G** to toggle the effects, or find **Toggle Liquid Glass** in DSH’s keyboard-shortcut settings. Linux Web and conflicting defaults start without a binding.
 

@@ -1446,5 +1446,41 @@ await flushVideo();
 assert(Number(currentVideo().style.opacity) === 0.3, 'the wallpaper opacity also applies to videos');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
+console.log('\n[30] Adjustable reading protection and contrast');
+reload();
+currentActions.setGlass(true);
+currentActions.setGlassSurfaces(true);
+currentActions.setWallpaper(null);
+currentActions.resetAppearance();
+await currentActions.setVideo(videoFile);
+await flushVideo();
+assert(dimLayer().style.backgroundColor === 'rgba(0, 0, 0, 0.35)',
+  'the previous 35% reading protection behavior is the default');
+currentActions.setOption('readingDim', 60);
+currentActions.setOption('vignette', 50);
+assert(dimLayer().style.backgroundColor === 'rgba(0, 0, 0, 0.6)' && /radial-gradient.*0.5/.test(dimLayer().style.backgroundImage),
+  'the two reading controls adjust the minimum video dim and the wallpaper vignette');
+reload();
+await flushVideo();
+assert(dimLayer().style.backgroundColor === 'rgba(0, 0, 0, 0.6)' && /radial-gradient.*0.5/.test(dimLayer().style.backgroundImage),
+  'reading protection strength is saved across reload');
+currentActions.setOption('autoDim', false);
+assert(dimLayer().style.backgroundColor === 'rgba(0, 0, 0, 0)' && dimLayer().style.backgroundImage === 'none',
+  'disabling reading protection removes its wallpaper dim and vignette');
+currentActions.setOption('readingDim', 200);
+currentActions.setOption('vignette', -1);
+assert(currentStore.getSnapshot().options.readingDim === 100 && currentStore.getSnapshot().options.vignette === 0,
+  'reading protection strengths are restricted to 0–100%');
+currentActions.setOption('autoDim', true);
+const firstContrast = currentActions.readContentContrast();
+assert(firstContrast === null, 'contrast is unavailable without a readable host text token');
+windowMock.getComputedStyle = () => ({ getPropertyValue: () => 'rgb(0, 0, 0)' });
+const contentRatio = currentActions.readContentContrast();
+assert(contentRatio > 18 && contentRatio < 19, 'the contrast estimate uses WCAG luminance and the worst background bound');
+windowMock.getComputedStyle = () => ({ getPropertyValue: () => 'rgba(0, 0, 0, 0.5)' });
+assert(currentActions.readContentContrast() === null, 'a translucent text token does not report an opaque contrast estimate');
+delete windowMock.getComputedStyle;
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);
