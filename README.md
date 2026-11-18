@@ -42,7 +42,7 @@ Run the same command to upgrade to 0.5.0. It pins the version and uses the offic
 
 1. Choose **Regular**, **Clear**, or **Frost**, then fine-tune the surface transparency (3%–95%). On main, selecting a preset previews it. **Apply preset** saves it, **Cancel preview** restores the saved look, and **Undo preset change** restores the previous appearance during the current session.
 2. Under **Background**, add a local image, an image URL, or a local MP4/WebM video up to 100 MiB. Video decoding depends on your browser. Preview the background, then select **Save** for the main background picker. Videos loop muted and can be paused.
-3. In 0.5.0, add the saved background to the **Wallpaper rotation** pool. Rotation starts off and checks for a switch when DSH opens. In the version on main, use **Add images** in **Background** to select several photos at once. Click a thumbnail to use it, or replace it in place.
+3. In 0.5.0, add the saved background to the **Wallpaper rotation** pool. Rotation starts off and checks for a switch when DSH opens. In the version on main, use **Add images** in **Background** to select several photos at once. Click a thumbnail to use it, or replace it in place. **Recent images** retains up to 12 saved images and their composition. **Adjust wallpaper composition** provides drag, wheel zoom, and keyboard-accessible sliders, with a save or cancel step.
 4. Open **Advanced settings** for separate light and dark appearances, reading protection, tint, menu frost, fit, position, brightness, and dimming. Saved videos can use a still frame. Resetting the effects preserves the background and the main switch.
 
 On main, turn off **Glass surfaces** to keep the background with the host’s native surfaces. **Restore native appearance** asks for confirmation, then clears the active background and restores appearance defaults while retaining the saved rotation gallery.
@@ -72,7 +72,7 @@ These screenshots show the 0.4.0 interface in DSH 0.2.2-rc.2 Web.
 
 The client bundle targets DSH Web. Validation includes [DSH 0.2.2-rc.2](docs/v0.4.0-validation.md), the published release checks in the [changelog](CHANGELOG.md), and the Web checks for the [gallery update](https://github.com/Ultroncn/dsh-liquid-glass/pull/30). See the [host API notes](docs/v0.2.0-local-evidence.md) for integration details. The plugin interface provides English and Simplified Chinese.
 
-Preferences and images are stored in the site’s `localStorage`. Videos are stored in IndexedDB. The plugin has no server component or telemetry.
+Preferences and images are stored in the site’s `localStorage`. Videos and the recent image history are stored in IndexedDB. The plugin has no server component or telemetry.
 
 To uninstall, run `dsh plugin --profile web remove dsh-liquid-glass` with the same profile. Remove saved backgrounds before uninstalling if you want to free the media storage. Uninstalling retains the site’s local records.
 
