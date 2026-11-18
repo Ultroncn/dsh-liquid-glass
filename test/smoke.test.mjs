@@ -1259,6 +1259,40 @@ const removeButtons = findAll(rotationTree, (node) => node.type === officialUI.B
 assert(removeButtons.length === 2, 'each pool entry has a remove button');
 removeButtons[0].props.onClick();
 assert(currentStore.getSnapshot().rotation.items.length === 1, 'remove button drops its pool entry');
+
+// Render the actual pool thumbnail component with an IndexedDB-backed Blob.
+await currentActions.setVideo(videoFile);
+await flushVideo();
+currentActions.addCurrentToRotation();
+rotationTree = drawRotation();
+const thumbnailNode = findNode(rotationTree, (node) => node.type?.name === 'RotationVideoThumbnail');
+const drawThumbnail = mountComponent(thumbnailNode.type, () => thumbnailNode.props);
+drawThumbnail();
+await flushVideo();
+const thumbnail = drawThumbnail();
+assert(thumbnail.type === 'video' && thumbnail.props.src.startsWith('blob:')
+  && (await (await fetch(thumbnail.props.src)).text()) === await videoFile.text()
+  && thumbnail.props.muted && thumbnail.props.playsInline && thumbnail.props.preload === 'metadata'
+  && thumbnail.props.style.width === '64px' && thumbnail.props.style.height === '40px'
+  && thumbnail.props.style.objectFit === 'cover' && thumbnail.props.style.borderRadius === '6px',
+  'a pooled video Blob renders a muted inline 64×40 cover thumbnail');
+drawThumbnail.unmount();
+assert(revokedVideoURLs.includes(thumbnail.props.src), 'unmounting a pool thumbnail revokes its Blob URL');
+
+// Leave a valid pool entry whose Blob is absent from IndexedDB.
+const missingVideoItem = { ...thumbnailNode.props.item, id: 'missing-thumbnail-video' };
+setRotationRecord({ ...currentStore.getSnapshot().rotation, items: [missingVideoItem] });
+reload();
+rotationTree = drawRotation();
+const missingThumbnailNode = findNode(rotationTree, (node) => node.type?.name === 'RotationVideoThumbnail');
+const drawMissingThumbnail = mountComponent(missingThumbnailNode.type, () => missingThumbnailNode.props);
+drawMissingThumbnail();
+await flushVideo();
+const missingThumbnail = drawMissingThumbnail();
+assert(missingThumbnail.type === 'div' && missingThumbnail.props.children === t('rotation.video')
+  && missingThumbnail.props.style.width === '64px' && missingThumbnail.props.style.height === '40px',
+  'a pooled video with no Blob falls back to the video placeholder');
+drawMissingThumbnail.unmount();
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
