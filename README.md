@@ -45,6 +45,8 @@ Run the same command to upgrade to 0.5.0. It pins the version and uses the offic
 3. In 0.5.0, add the saved background to the **Wallpaper rotation** pool. Rotation starts off and checks for a switch when DSH opens. In the version on main, use **Add images** in **Background** to select several photos at once. Click a thumbnail to use it, or replace it in place.
 4. Open **Advanced settings** for separate light and dark appearances, reading protection, tint, menu frost, fit, position, brightness, and dimming. Saved videos can use a still frame. Resetting the effects preserves the background and the main switch.
 
+On main, turn off **Glass surfaces** to keep the background with the host’s native surfaces. **Restore native appearance** asks for confirmation, then clears the active background and restores appearance defaults while retaining the saved rotation gallery.
+
 Reading protection is on by default. It keeps dialogs and overlays opaque and content, code, and menus at least 94% opaque while leaving the base and sidebar adjustable. It also dims bright local or same-origin media. Cross-origin images use manual dimming. System reduced transparency or increased contrast temporarily selects Frost and caps transparency at 50%.
 
 Use **Ctrl/Cmd+Shift+G** to toggle the effects, or find **Toggle Liquid Glass** in DSH’s keyboard-shortcut settings. Linux Web and conflicting defaults start without a binding.
