@@ -44,7 +44,7 @@ Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original 
 - **Local video backgrounds**: select MP4/WebM up to 100 MiB, with a browser-supported codec. Validated files preview immediately and are saved locally only after Save; playback loops muted; pause, resume and removal are available. Hidden pages and reduced-motion preferences pause playback. No video URLs, audio or playlists.
 - **Visual cards**: three material previews and one permanent image/video uploader, with click or drag-and-drop selection. Replace and red remove controls sit over the thumbnail; no separate filename or media-description row.
 - **Background drafts**: add, replace or remove to preview immediately; Save commits the selection. Closing settings, switching menus or collapsing the section prompts Save and leave, Discard changes or Keep editing. Discard restores the saved background.
-- **Wallpaper rotation**: keep several saved image or video backgrounds in a rotation pool and cycle through them in order or at random — on every open, hourly, daily, or by time of day (morning/afternoon/evening/night). Off by default; turning it off restores the single background. Pool images share the browser's local storage budget; rotation is evaluated when the app opens.
+- **Background gallery**: add several images at once from **Background**, with room for up to six saved rotation entries. A saved video or image link can also be added to the collection. Thumbnails stay in one row and scroll horizontally when space is tight. Select a thumbnail to use that background, or replace or remove an image in place. Rotation starts when the first image batch takes the gallery to at least two entries. Open **Rotation settings** to pause rotation or change its order and timing. Rotation is evaluated when the app opens. Existing galleries over six remain usable and can add items once space is freed.
 - **Compact defaults**: presets, transparency and background selection; tint, frost, fit and reading protection live under Advanced. Reset preserves the background and master switch.
 
 - **Theme surface transparency** through the official ThemeRuntime tokens, with a 3%–95% transparency slider.
@@ -55,10 +55,6 @@ Captured from the actual package in official DSH 0.2.2-rc.2 Web, using original 
 - **Keyboard toggle**: Ctrl/Cmd+Shift+G through the host shortcut service. Change or remove “Toggle Liquid Glass” in the host Keyboard shortcuts settings. Linux Web starts unbound; conflicting defaults fall back to an unbound command.
 
 Independent user/assistant opacity floors and general host-panel blur/highlights are not implemented: verified official extension hooks are missing. See [local API evidence and validation limits](docs/v0.2.0-local-evidence.md). See [0.4.0 validation](docs/v0.4.0-validation.md) for the 0.4.0 feature baseline.
-
-## Share appearance settings
-
-Use **Export settings** and **Import settings** in the Theme background panel to share a versioned JSON file. Review the presets, rotation pool, and missing media before applying. Cancelling keeps the previous appearance. Unavailable local media is skipped and the current background is retained if the selected reference is missing. The file contains compatible wallpaper references and metadata, with local image and video bytes and URLs with query parameters excluded.
 
 ## Privacy and compatibility
 
