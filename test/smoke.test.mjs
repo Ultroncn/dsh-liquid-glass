@@ -604,6 +604,7 @@ assert(!currentCss().includes('!important') && !source.slice(source.indexOf('fun
 for (const [preset, alpha, blur, saturation] of [['regular', 0.62, 12, 180], ['clear', 0.35, 6, 140], ['frost', 0.78, 20, 200]]) {
   const control = findNode(renderRow(), node => node.type?.name === 'MaterialCards');
   control.props.onChange(preset);
+  findNode(renderRow(), node => node.type === officialUI.Button && node.props.children === t('glass.applyPreset')).props.onClick();
   const slider = findNode(renderRow(), (node) => node.type?.name === 'Slider' && node.props.label === t('glass.alpha'));
   assert(baseAlpha() === alpha && slider.props.value === Math.round((1 - alpha) * 100) && JSON.parse(storageMap.get(OPTIONS_KEY)).preset === preset, `${preset} synchronizes token opacity, slider, and persisted preset`);
   assert([...liveLayers.values()].every(tokens => !Object.keys(tokens).some(key => key === '--dsw-alias-settings-card-stroke' || key.startsWith('--dsw-alias-border-'))), `${preset} keeps the Host's settings-card and border colors instead of whitening light-mode list outlines`);
@@ -1480,6 +1481,55 @@ assert(contentRatio > 18 && contentRatio < 19, 'the contrast estimate uses WCAG 
 windowMock.getComputedStyle = () => ({ getPropertyValue: () => 'rgba(0, 0, 0, 0.5)' });
 assert(currentActions.readContentContrast() === null, 'a translucent text token does not report an opaque contrast estimate');
 delete windowMock.getComputedStyle;
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
+console.log('\n[31] Preset trial, apply, and undo');
+reload();
+storageMap.delete(PROFILE_KEY);
+activeScheme = 'light';
+reload();
+currentActions.setGlass(true);
+currentActions.setGlassSurfaces(true);
+currentActions.setPreset('regular');
+const beforeTrial = gallerySnapshot();
+assert(currentActions.previewPreset('clear') && baseAlpha() === 0.35 && gallerySnapshot() === beforeTrial,
+  'a trial updates the rendered preset without writing preferences');
+assert(currentActions.cancelPresetPreview() && baseAlpha() === 0.62 && gallerySnapshot() === beforeTrial,
+  'cancel restores the saved appearance without touching storage');
+currentActions.previewPreset('frost');
+const originalWritePreset = windowMock.localStorage.setItem;
+windowMock.localStorage.setItem = (key, value) => {
+  if (key === OPTIONS_KEY) throw new Error('Quota');
+  return originalWritePreset(key, value);
+};
+assert(!currentActions.applyPresetPreview() && gallerySnapshot() === beforeTrial && baseAlpha() === 0.62,
+  'a failed apply rolls back the entire preset and ends the trial');
+windowMock.localStorage.setItem = originalWritePreset;
+currentActions.previewPreset('clear');
+const originalOverridePreset = ctxMock.theme.overrideTokens;
+ctxMock.theme.overrideTokens = (...args) => {
+  ctxMock.theme.overrideTokens = originalOverridePreset;
+  throw new Error('Host rejected the theme update');
+};
+assert(!currentActions.applyPresetPreview() && gallerySnapshot() === beforeTrial && baseAlpha() === 0.62,
+  'a host theme error also rolls back the saved and rendered appearance');
+assert(currentActions.previewPreset('frost') && currentActions.applyPresetPreview() && baseAlpha() === 0.78
+  && JSON.parse(storageMap.get(OPTIONS_KEY)).preset === 'frost', 'applying the trial persists the appearance');
+assert(currentActions.undoPreset() && gallerySnapshot() === beforeTrial && baseAlpha() === 0.62,
+  'one-click undo restores the exact settings that preceded apply');
+currentActions.setSeparateAppearance(true);
+activeScheme = 'dark'; emitThemeChange();
+const oldProfilesForTrial = storageMap.get(PROFILE_KEY);
+assert(currentActions.previewPreset('clear') && currentActions.applyPresetPreview()
+  && JSON.parse(storageMap.get(PROFILE_KEY)).dark.options.preset === 'clear'
+  && JSON.parse(storageMap.get(PROFILE_KEY)).light.options.preset === 'regular',
+  'applying a preset to a separate scheme leaves the other scheme alone');
+assert(currentActions.undoPreset() && storageMap.get(PROFILE_KEY) === oldProfilesForTrial,
+  'undo restores the original profile record');
+currentActions.previewPreset('frost');
+activeScheme = 'light'; emitThemeChange();
+assert(!currentStore.getSnapshot().presetUi.trial && baseAlpha() === 0.62,
+  'changing scheme cancels a trial instead of applying it to a different scheme');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log(failures === 0 ? '\n🎉 ALL CHECKS PASSED\n' : `\n💥 ${failures} CHECK(S) FAILED\n`);
