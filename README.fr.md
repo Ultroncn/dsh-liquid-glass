@@ -22,19 +22,19 @@
 
 Liquid Glass ajoute des surfaces translucides et des fonds d’écran avec des images ou des vidéos à [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). Ce module est maintenu par la communauté.
 
-> **Version 0.6.0.** La rotation se trouve dans la section des fonds d’écran. Vous pouvez ajouter plusieurs images, les remplacer une par une et parcourir jusqu’à six vignettes sur une seule ligne à défilement horizontal. Le [journal des modifications](CHANGELOG.md) décrit la suppression de l’importation et de l’exportation de l’apparence ainsi que les autres nouveautés.
+> **Version 0.7.0.** Ajoutez des images par lien à la galerie des fonds d’écran. Les liens et les fichiers locaux partagent six emplacements. Les cartes ont la même taille que les cartes de matériau et affichent les actions de remplacement et de suppression au survol. Le [journal des modifications](CHANGELOG.md) détaille les autres ajustements.
 
 ## Installation et ouverture
 
-Cherchez `dsh-liquid-glass` dans le catalogue de modules de DSH et vérifiez que l’auteur est **Ultroncn**. Dans le champ d’ajout de l’application, saisissez `dsh-liquid-glass@0.6.0`. En ligne de commande, remplacez `web` par le profil que vous utilisez pour DSH.
+Cherchez `dsh-liquid-glass` dans le catalogue de modules de DSH et vérifiez que l’auteur est **Ultroncn**. Dans le champ d’ajout de l’application, saisissez `dsh-liquid-glass@0.7.0`. En ligne de commande, remplacez `web` par le profil que vous utilisez pour DSH.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.6.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
 ```
 
 Redémarrez DSH après l’installation ou la mise à jour. Ouvrez **Settings → General → Theme background** (**设置 → 通用 → 主题背景**), sous **Appearance**. L’interrupteur principal commande à la fois l’effet de verre et le fond d’écran. Vos réglages restent enregistrés lorsqu’il est désactivé.
 
-Pour passer à la version 0.6.0, exécutez la même commande. Elle fixe la version et utilise le registre npm officiel. En cas d’erreur `ERR_PNPM_ADDING_TO_ROOT`, ajoutez `-w` après `add`.
+Pour passer à la version 0.7.0, exécutez la même commande. Elle fixe la version et utilise le registre npm officiel. En cas d’erreur `ERR_PNPM_ADDING_TO_ROOT`, ajoutez `-w` après `add`.
 
 ## Utilisation
 

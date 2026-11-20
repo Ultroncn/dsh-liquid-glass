@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.0 — 2026-11-20
+
+### 中文
+
+- 可以通过添加按钮或回车将图片链接放进背景图库，与本地上传共用 6 个名额。图库会显示当前数量、剩余名额和满额状态。
+- 背景卡片与材质预设卡片同尺寸。悬停或通过键盘聚焦时，在卡片中央显示替换和红色删除图标。「使用链接」固定在图片行下方，输入框宽度随窗口调整。
+- 统一轮换、背景构图和高级设置的折叠项对齐及留白。展开轮换设置时，控件上下保留相同间距。
+- GitHub 首页默认使用简体中文，保留英文和其他语言入口。
+
+### English
+
+- Add image links to the background gallery with the Add button or Enter. Links and local uploads share six slots, with a visible count, remaining capacity, and full state.
+- Match background cards to the material preset cards. Show replace and red delete icons at the center on hover or keyboard focus. Keep Use a link under the image row and let the URL field adapt to the available width.
+- Align the disclosures for rotation, background composition, and Advanced settings. Balance the spacing around the expanded rotation controls.
+- Use Simplified Chinese for the GitHub landing page, with links to English and the other translations.
+
 ## 0.6.0 — 2026-11-19
 
 ### 中文
