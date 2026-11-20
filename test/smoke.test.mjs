@@ -545,27 +545,16 @@ save();
 assert(inlineError('wallpaper.saveFailed'), 'failed local wallpaper save shows the inline error');
 assert(storageMap.get(WALLPAPER_KEY) === savedWallpaper && currentStore.getSnapshot().wallpaper === savedWallpaper && currentStore.getSnapshot().revision === savedRevision, 'failed save leaves persisted wallpaper and store revision unchanged');
 assert(bodyChildren.length === previousBodyCount && !previousElement.removed && previousElement.style.backgroundImage === previousBackground, 'failed save does not apply or replace the wallpaper layer');
-const linkControlsIn = tree => findNode(tree, node => node.type?.name === 'RotationSection')?.props.linkControls ?? tree;
-findNode(linkControlsIn(wallpaperTree), node => node.type === officialUI.Button && node.props.children === t('wallpaper.link')).props.onClick();
-wallpaperTree = renderWallpaper();
-const urlInput = findNode(linkControlsIn(wallpaperTree), node => node.type === officialUI.Input && node.props.placeholder === t('wallpaper.urlPlaceholder'));
-urlInput.props.onChange({ target: { value: 'https://example.com/replacement.jpg' } });
-wallpaperTree = renderWallpaper();
-findNode(linkControlsIn(wallpaperTree), node => node.type === officialUI.Button && node.props.children === t('wallpaper.preview')).props.onClick();
-finishImage();
-wallpaperTree = renderWallpaper();
-save();
-assert(inlineError('wallpaper.saveFailed'), 'failed remote wallpaper save also shows the inline error after URL validation');
 windowMock.localStorage.setItem = originalSetItem;
 save();
 wallpaperTree = renderWallpaper();
-assert(storageMap.get(WALLPAPER_KEY) === 'https://example.com/replacement.jpg' && currentStore.getSnapshot().wallpaper === 'https://example.com/replacement.jpg' && !inlineError('wallpaper.saveFailed'), 'retry succeeds and clears the save error once storage works');
+assert(storageMap.get(WALLPAPER_KEY) === compressedDataUrl && currentStore.getSnapshot().wallpaper === compressedDataUrl && !inlineError('wallpaper.saveFailed'), 'retry succeeds and clears the save error once storage works');
 const originalRemoveItem = windowMock.localStorage.removeItem;
 windowMock.localStorage.removeItem = () => { throw new DOMException('Storage blocked', 'SecurityError'); };
 findNode(wallpaperTree, (node) => node.type === officialUI.Button && node.props['aria-label'] === t('wallpaper.remove')).props.onClick();
 wallpaperTree = renderWallpaper();
 save();
-assert(inlineError('wallpaper.saveFailed') && currentStore.getSnapshot().wallpaper === 'https://example.com/replacement.jpg', 'failed wallpaper removal reports an inline error and preserves the applied value');
+assert(inlineError('wallpaper.saveFailed') && currentStore.getSnapshot().wallpaper === compressedDataUrl, 'failed wallpaper removal reports an inline error and preserves the applied value');
 windowMock.localStorage.removeItem = originalRemoveItem;
 
 console.log('\n[12] Official switch and named slider contract');
@@ -1416,6 +1405,83 @@ if (!advancedExpander.props.open) advancedExpander.props.onClick();
 const advancedPanel = findNode(mountRow(), node => node.props?.id === advancedExpander.props.controls);
 assert(advancedPanel?.props.style.paddingInlineStart === '28px', 'advanced controls align under the heading after the disclosure gutter');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+
+console.log('\n[27b] Add an image URL to the background gallery');
+const beforeLinkGallery = storageMap.get(ROTATION_KEY);
+currentActions.setWallpaper(null);
+setRotationRecord({ version: 1, enabled: false, order: 'sequential', timing: 'refresh', items: [], index: 0, lastSwitch: 0 });
+reload();
+const getGallerySpec = () => {
+  const wallpaper = findNode(mountRow(), node => node.type?.name === 'WallpaperSection');
+  return findNode(mountComponent(wallpaper.type, () => wallpaper.props)(), node => node.type?.name === 'RotationSection');
+};
+const linkGallerySpec = getGallerySpec();
+const drawLinkGallery = mountComponent(linkGallerySpec.type, () => {
+  const { rotation, wallpaper, video } = currentStore.getSnapshot();
+  return { ...linkGallerySpec.props, rotation, wallpaper, video };
+});
+const linkToggle = tree => findNode(tree, node => node.type === officialUI.Button && node.props['aria-label'] === t('wallpaper.link'));
+const linkForm = tree => findNode(tree, node => node.type === 'form' && node.props['data-background-link-form'] === '');
+assert(!!linkToggle(drawLinkGallery()) && !linkForm(drawLinkGallery()), 'the link entry is available with its form initially collapsed');
+if (linkToggle(drawLinkGallery())) {
+  const firstLink = 'https://example.com/background-one.png';
+  const secondLink = 'https://example.com/background-two.png';
+  const changeLink = value => findNode(linkForm(drawLinkGallery()), node => node.type === officialUI.Input).props.onChange({ target: { value } });
+  const submitLink = () => linkForm(drawLinkGallery()).props.onSubmit({ preventDefault() {} });
+  const linkInputValue = () => findNode(linkForm(drawLinkGallery()), node => node.type === officialUI.Input)?.props.value;
+  const linkAlert = text => !!findNode(linkForm(drawLinkGallery()), node => node.props?.role === 'alert' && node.props.children === t(text));
+
+  linkToggle(drawLinkGallery()).props.onClick();
+  assert(findNode(linkForm(drawLinkGallery()), node => node.type === officialUI.Button && node.props.type === 'submit'),
+    'the Add button and Enter use the same form submit event');
+  changeLink('https://');
+  submitLink();
+  assert(linkAlert('wallpaper.invalidUrl') && linkInputValue() === 'https://', 'invalid URLs keep the input and show an error without adding an item');
+  changeLink(firstLink);
+  submitLink();
+  finishImage(false);
+  assert(linkAlert('wallpaper.badUrl') && linkInputValue() === firstLink && currentStore.getSnapshot().rotation.items.length === 0,
+    'an image load error leaves the gallery and input intact');
+  windowMock.localStorage.setItem = (key, value) => {
+    if (key === WALLPAPER_KEY) throw new DOMException('Storage full', 'QuotaExceededError');
+    originalSetItem2(key, value);
+  };
+  submitLink();
+  finishImage();
+  windowMock.localStorage.setItem = originalSetItem2;
+  assert(linkAlert('rotation.saveFailed') && linkInputValue() === firstLink
+    && currentStore.getSnapshot().rotation.items.length === 0 && !currentStore.getSnapshot().wallpaper,
+    'a failed initial save keeps the link input and rolls back both gallery and background');
+  submitLink();
+  finishImage();
+  assert(currentStore.getSnapshot().rotation.items[0]?.url === firstLink && currentStore.getSnapshot().wallpaper === firstLink
+    && !linkForm(drawLinkGallery()), 'the first loaded URL is added and applied when there is no current background');
+
+  linkToggle(drawLinkGallery()).props.onClick();
+  changeLink(firstLink);
+  submitLink();
+  assert(linkAlert('rotation.duplicate') && linkInputValue() === firstLink && currentStore.getSnapshot().rotation.items.length === 1,
+    'duplicate links keep the form open and do not use another slot');
+  changeLink(secondLink);
+  submitLink();
+  finishImage();
+  assert(currentStore.getSnapshot().rotation.items.at(-1)?.url === secondLink && currentStore.getSnapshot().wallpaper === firstLink,
+    'a later link is appended without applying it');
+  findNode(drawLinkGallery(), node => node.type === officialUI.Button && node.props['aria-label'] === `${t('rotation.select')} 2`).props.onClick();
+  assert(currentStore.getSnapshot().wallpaper === secondLink, 'a link card can be selected as the current wallpaper');
+  assert(currentActions.addRotationImages(Array.from({ length: 4 }, (_, i) => `data:image/png;base64,capacity-${i}`)) === true,
+    'uploads and links share one gallery');
+  assert(currentActions.addRotationImages(['https://example.com/extra.png'], { source: 'link' }) === 'limit',
+    'the shared save action enforces the limit even if a slot fills while a link is loading');
+  assert(linkToggle(drawLinkGallery())?.props.disabled && !uploadTile(drawLinkGallery()) && !linkForm(drawLinkGallery()),
+    'the link entry stays visible but disabled at capacity and the upload tile is hidden');
+  const deleteLast = findNode(drawLinkGallery(), node => node.type === officialUI.Button && node.props['aria-label'] === `${t('rotation.remove')} 6`);
+  deleteLast.props.onClick();
+  assert(linkToggle(drawLinkGallery())?.props.disabled === false && !!uploadTile(drawLinkGallery()), 'removing an item restores both add entry points');
+}
+drawLinkGallery.unmount();
+effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
+storageMap.set(ROTATION_KEY, beforeLinkGallery);
 
 console.log('\n[28] Independent glass and native appearance');
 reload();
