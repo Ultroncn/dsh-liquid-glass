@@ -1369,6 +1369,8 @@ const drawGalleryEditor = mountComponent(galleryEditor.type, () => {
 });
 assert(!!findNode(drawGalleryEditor(), node => node.type?.name === 'RotationSection'),
   'the photo library is inside the background editor under its heading');
+assert(!drawGalleryEditor().props.children.some(node => node?.type === 'div' && node.props.style?.display === 'flex'),
+  'an image gallery without pending edits renders no empty action row below rotation settings');
 const galleryStripKey = 'data-liquid-glass-wallpaper-strip';
 const galleryLinkRow = drawRotation().props.children.findIndex(node => node?.props?.['data-background-link-row'] === '');
 assert(galleryLinkRow >= 0 && drawRotation().props.children[galleryLinkRow - 1]?.props?.[galleryStripKey] === '',
