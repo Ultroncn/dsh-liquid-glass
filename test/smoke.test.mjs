@@ -1217,12 +1217,18 @@ const drawRotation = () => {
 };
 let rotationTree = drawRotation();
 const multiInput = findNode(rotationTree, node => node.type === 'input' && node.props.multiple === true);
-assert(multiInput?.props['aria-label'] === t('rotation.addImages'), 'background settings have a direct multi-image file picker');
+assert(multiInput?.props['aria-label'] === t('rotation.addMedia') && multiInput.props.accept.includes('video/mp4')
+  && multiInput.props.accept.includes('video/webm'), 'the file picker exposes batch image and video support');
 const uploadTile = tree => findNode(
   findNode(tree, node => node.props?.['data-liquid-glass-wallpaper-strip'] === ''),
-  node => node.type === officialUI.Button && node.props['aria-label'] === t('rotation.addImages'),
+  node => node.type === officialUI.Button && node.props['aria-label'] === t('rotation.addMedia'),
 );
-assert(!!uploadTile(rotationTree), 'an empty gallery keeps the upload card in the scrolling row');
+const galleryUpload = uploadTile(rotationTree);
+assert(galleryUpload && findNode(galleryUpload, node => node.type === 'span' && node.props.children === t('rotation.addMedia')),
+  'an empty gallery shows an upload card labeled for both images and video in the scrolling row');
+const pickerHint = findNode(galleryUpload, node => node.props?.children === t('rotation.addMediaHint'));
+assert(pickerHint?.props.id && pickerHint.props.id === galleryUpload.props['aria-describedby'],
+  'the upload card describes its batch image and single video limits');
 assert(!findNode(rotationTree, node => node.type === 'details'), 'an empty pool hides the rotation settings');
 const addButton = () => findNode(drawRotation(), node => node.type === officialUI.Button && node.props.children === t('rotation.addCurrent'));
 assert(!!addButton(), 'the first saved background can join the pool');
@@ -1254,6 +1260,8 @@ rotationTree = drawRotation();
 const nextButton = findNode(rotationTree, node => node.type === officialUI.Button && node.props.children === t('rotation.next'));
 const rotationDetails = findNode(rotationTree, node => node.type === 'details');
 assert(rotationDetails && nextButton, 'two pool entries expose folded rotation controls');
+assert(nextButton?.props.style?.backgroundColor === 'var(--dsw-alias-interactive-bg-hover)',
+  'the Next wallpaper button always uses a visible host background');
 assert(rotationDetails?.props.children[1]?.props.style.paddingBlockStart === rotationTree.props.style.gap,
   'expanded rotation controls use the same leading space as the surrounding disclosures');
 nextButton.props.onClick();
