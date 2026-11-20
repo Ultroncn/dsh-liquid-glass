@@ -570,10 +570,11 @@ const ALPHA_KEY = 'dsh-liquid-glass:glass-alpha';
 const currentCss = () => documentMock.getElementById('dsh-liquid-glass-glass-css')?.textContent ?? '';
 const material = () => materialCalls.at(-1).overrides;
 const baseAlpha = () => Number(/, ([\d.]+)\)$/.exec(ctxCalls.overrideTokens.at(-1).overrides['--dsw-alias-bg-base'].light)[1]);
+const findAdvanced = tree => findNode(tree, node => node.type === officialUI.Button && node.props.children === t('row.advanced'));
 const renderRow = () => {
   let tree = mountRow();
-  const advanced = findNode(tree, n => n.type?.name === 'Expander' && n.props.label === t('row.advanced'));
-  if (advanced && !advanced.props.open) { advanced.props.onClick(); tree = mountRow(); }
+  const advanced = findAdvanced(tree);
+  if (advanced && !advanced.props['aria-expanded']) { advanced.props.onClick(); tree = mountRow(); }
   return tree;
 };
 function reload() {
@@ -1400,10 +1401,17 @@ deleteTile(1).props.onClick();
 assert(currentStore.getSnapshot().wallpaper === null && !currentStore.getSnapshot().rotation.items.some(item => item.id === firstTileId),
   'deleting the active card removes its gallery entry and clears the current background');
 drawGalleryEditor.unmount();
-const advancedExpander = findNode(compactRow, node => node.type?.name === 'Expander' && node.props.label === t('row.advanced'));
-if (!advancedExpander.props.open) advancedExpander.props.onClick();
-const advancedPanel = findNode(mountRow(), node => node.props?.id === advancedExpander.props.controls);
-assert(advancedPanel?.props.style.paddingInlineStart === '28px', 'advanced controls align under the heading after the disclosure gutter');
+const advancedExpander = findAdvanced(compactRow);
+const rotationSummary = findNode(drawRotation(), node => node.type === 'summary');
+assert(advancedExpander?.props.className && advancedExpander.props.className === rotationSummary?.props.className
+  && advancedExpander.props.style.padding === 0, 'advanced settings and background details share the disclosure alignment');
+assert(!!findNode(compactRow, node => node.type === officialUI.Button && node.props.children === t('glass.reset')),
+  'reset appearance remains a separate button');
+if (!advancedExpander.props['aria-expanded']) advancedExpander.props.onClick();
+const expandedRow = mountRow();
+const advancedPanel = findNode(expandedRow, node => node.props?.id === advancedExpander.props['aria-controls']);
+assert(findAdvanced(expandedRow)?.props['aria-expanded'] && advancedPanel?.props.style.paddingInlineStart === '12px',
+  'the advanced heading toggles its panel and the controls align with the heading text');
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
 
 console.log('\n[27b] Add an image URL to the background gallery');
