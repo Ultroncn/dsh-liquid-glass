@@ -545,12 +545,13 @@ save();
 assert(inlineError('wallpaper.saveFailed'), 'failed local wallpaper save shows the inline error');
 assert(storageMap.get(WALLPAPER_KEY) === savedWallpaper && currentStore.getSnapshot().wallpaper === savedWallpaper && currentStore.getSnapshot().revision === savedRevision, 'failed save leaves persisted wallpaper and store revision unchanged');
 assert(bodyChildren.length === previousBodyCount && !previousElement.removed && previousElement.style.backgroundImage === previousBackground, 'failed save does not apply or replace the wallpaper layer');
-findNode(wallpaperTree, node => node.type === officialUI.Button && node.props.children === t('wallpaper.link')).props.onClick();
+const linkControlsIn = tree => findNode(tree, node => node.type?.name === 'RotationSection')?.props.linkControls ?? tree;
+findNode(linkControlsIn(wallpaperTree), node => node.type === officialUI.Button && node.props.children === t('wallpaper.link')).props.onClick();
 wallpaperTree = renderWallpaper();
-const urlInput = findNode(wallpaperTree, (node) => node.type === officialUI.Input && node.props.placeholder === t('wallpaper.urlPlaceholder'));
+const urlInput = findNode(linkControlsIn(wallpaperTree), node => node.type === officialUI.Input && node.props.placeholder === t('wallpaper.urlPlaceholder'));
 urlInput.props.onChange({ target: { value: 'https://example.com/replacement.jpg' } });
 wallpaperTree = renderWallpaper();
-findNode(wallpaperTree, node => node.type === officialUI.Button && node.props.children === t('wallpaper.preview')).props.onClick();
+findNode(linkControlsIn(wallpaperTree), node => node.type === officialUI.Button && node.props.children === t('wallpaper.preview')).props.onClick();
 finishImage();
 wallpaperTree = renderWallpaper();
 save();
@@ -1372,8 +1373,44 @@ if (!compactExpander.props.open) compactExpander.props.onClick();
 compactRow = mountRow();
 const backgroundGroup = findNode(compactRow, node => node.props?.['aria-label'] === t('wallpaper.title') && node.props?.role === 'group');
 const galleryEditor = findNode(backgroundGroup, node => node.type?.name === 'WallpaperSection');
-assert(galleryEditor && findNode(mountComponent(galleryEditor.type, () => galleryEditor.props)(), node => node.type?.name === 'RotationSection'),
+const drawGalleryEditor = mountComponent(galleryEditor.type, () => {
+  const { wallpaper, video } = currentStore.getSnapshot();
+  return { ...galleryEditor.props, url: wallpaper, video };
+});
+assert(!!findNode(drawGalleryEditor(), node => node.type?.name === 'RotationSection'),
   'the photo library is inside the background editor under its heading');
+const galleryStripKey = 'data-liquid-glass-wallpaper-strip';
+const galleryLinkRow = drawRotation().props.children.findIndex(node => node?.props?.['data-background-link-row'] === '');
+assert(galleryLinkRow >= 0 && drawRotation().props.children[galleryLinkRow - 1]?.props?.[galleryStripKey] === '',
+  'the link button is directly below the image strip and before the rotation settings');
+const pickedTile = findNode(drawRotation(), node => node.props?.['data-background-tile'] === '');
+const cardActions = findNode(pickedTile, node => node.props?.className === 'dsh-background-overlay');
+assert(cardActions?.props.children[0]?.props['aria-label'] === t('rotation.replace') + ' 1'
+  && cardActions.props.children[1]?.props['aria-label'] === t('rotation.remove') + ' 1'
+  && cardActions.props.children[1]?.props.style.color === '#ff6b6b',
+  'image cards show replace and red delete inside the centered overlay');
+const firstTileId = currentStore.getSnapshot().rotation.items[0].id;
+currentActions.selectRotationItem(firstTileId);
+assert(!findNode(drawGalleryEditor(), node => node.type === officialUI.Button && node.props.children === t('wallpaper.remove')),
+  'the editor does not repeat Remove background as a text button');
+const deleteTile = index => findNode(drawRotation(), node => node.type === officialUI.Button && node.props['aria-label'] === t('rotation.remove') + ' ' + index);
+const activeWallpaper = currentStore.getSnapshot().wallpaper;
+deleteTile(2).props.onClick();
+assert(currentStore.getSnapshot().rotation.items.length === 4 && currentStore.getSnapshot().wallpaper === activeWallpaper,
+  'deleting a different card frees its slot and keeps the active wallpaper');
+const beforeDelete = gallerySnapshot();
+windowMock.localStorage.removeItem = key => {
+  if (key === WALLPAPER_KEY) throw new DOMException('Storage blocked', 'SecurityError');
+  originalRemoveItem(key);
+};
+deleteTile(1).props.onClick();
+windowMock.localStorage.removeItem = originalRemoveItem;
+assert(gallerySnapshot() === beforeDelete && currentStore.getSnapshot().wallpaper === activeWallpaper,
+  'a failed active-card delete preserves both the gallery and current wallpaper');
+deleteTile(1).props.onClick();
+assert(currentStore.getSnapshot().wallpaper === null && !currentStore.getSnapshot().rotation.items.some(item => item.id === firstTileId),
+  'deleting the active card removes its gallery entry and clears the current background');
+drawGalleryEditor.unmount();
 const advancedExpander = findNode(compactRow, node => node.type?.name === 'Expander' && node.props.label === t('row.advanced'));
 if (!advancedExpander.props.open) advancedExpander.props.onClick();
 const advancedPanel = findNode(mountRow(), node => node.props?.id === advancedExpander.props.controls);
