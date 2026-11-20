@@ -1252,7 +1252,10 @@ assert(currentStore.getSnapshot().wallpaper === 'data:image/png;base64,ui-a' && 
   'clicking a thumbnail selects that wallpaper');
 rotationTree = drawRotation();
 const nextButton = findNode(rotationTree, node => node.type === officialUI.Button && node.props.children === t('rotation.next'));
-assert(findNode(rotationTree, node => node.type === 'details') && nextButton, 'two pool entries expose folded rotation controls');
+const rotationDetails = findNode(rotationTree, node => node.type === 'details');
+assert(rotationDetails && nextButton, 'two pool entries expose folded rotation controls');
+assert(rotationDetails?.props.children[1]?.props.style.paddingBlockStart === rotationTree.props.style.gap,
+  'expanded rotation controls use the same leading space as the surrounding disclosures');
 nextButton.props.onClick();
 assert(currentStore.getSnapshot().wallpaper === 'data:image/png;base64,ui-b', 'next advances from the selected thumbnail');
 rotationTree = drawRotation();
