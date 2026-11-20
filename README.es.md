@@ -22,19 +22,19 @@
 
 Liquid Glass añade superficies translúcidas y fondos con imágenes o vídeos a [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). Es un complemento mantenido por la comunidad.
 
-> **Versión 0.6.0.** La rotación está integrada en la sección de fondos. Puedes añadir varias imágenes a la vez, sustituirlas individualmente y recorrer hasta seis miniaturas en una sola fila con desplazamiento horizontal. Consulta el [historial de cambios](CHANGELOG.md) para ver la retirada de la importación y exportación de apariencia y las demás novedades.
+> **Versión 0.7.0.** Añade imágenes a la galería de fondos mediante enlaces. Los enlaces y las cargas locales comparten seis plazas. Las tarjetas de fondo tienen el mismo tamaño que las de material y muestran las acciones de sustituir y eliminar al pasar el cursor. Consulta el [registro de cambios](CHANGELOG.md) para ver los demás ajustes de diseño.
 
 ## Instalación y acceso
 
-Busca `dsh-liquid-glass` en el catálogo de complementos de DSH y comprueba que el autor sea **Ultroncn**. En el campo para añadir complementos, introduce `dsh-liquid-glass@0.6.0`. Para usar la terminal, sustituye `web` por el perfil con el que ejecutas DSH.
+Busca `dsh-liquid-glass` en el catálogo de complementos de DSH y comprueba que el autor sea **Ultroncn**. En el campo para añadir complementos, introduce `dsh-liquid-glass@0.7.0`. Para usar la terminal, sustituye `web` por el perfil con el que ejecutas DSH.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.6.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
 ```
 
 Reinicia DSH tras instalar o actualizar. Abre **Settings → General → Theme background** (**设置 → 通用 → 主题背景**), debajo de **Appearance**. El interruptor principal activa juntos el efecto de cristal y el fondo. Tus preferencias se conservan al desactivarlo.
 
-Para actualizar a 0.6.0, ejecuta el mismo comando. Fija la versión y usa el registro oficial de npm. Si aparece `ERR_PNPM_ADDING_TO_ROOT`, añade `-w` después de `add`.
+Para actualizar a 0.7.0, ejecuta el mismo comando. Fija la versión y usa el registro oficial de npm. Si aparece `ERR_PNPM_ADDING_TO_ROOT`, añade `-w` después de `add`.
 
 ## Uso
 

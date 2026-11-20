@@ -22,21 +22,21 @@
 
 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）调节界面通透度，设置自己的图片或视频背景。这是一个社区维护的插件。
 
-> **0.6.0** 将轮换收进「背景」区，支持批量添加和逐张替换，最多 6 个条目，空间不足时缩略图单行横向滚动。外观设置导入、导出已移除，其他变化见[更新日志](CHANGELOG.md)。
+> **0.7.0** 支持用图片链接添加背景，与本地上传共用 6 个名额。背景卡片与材质卡片同尺寸，悬停时可替换或删除图片。轮换与高级设置的对齐和留白也已调整。详见[更新日志](CHANGELOG.md)。
 
 ## 安装与打开
 
-在 DSH 插件市场搜索 `dsh-liquid-glass`，核对作者 **Ultroncn** 后安装。使用应用里的「添加插件」输入框时，填写 `dsh-liquid-glass@0.6.0`。
+在 DSH 插件市场搜索 `dsh-liquid-glass`，核对作者 **Ultroncn** 后安装。使用应用里的「添加插件」输入框时，填写 `dsh-liquid-glass@0.7.0`。
 
 也可以使用命令行。示例使用 `web`，请替换为实际运行 DSH 的 profile。
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.6.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
 ```
 
 安装或更新后重启 DSH。打开 **设置 → 通用**，展开「外观」下方的 **主题背景**。总开关同时控制通透效果和图片／视频背景，关闭时保留偏好。
 
-从旧版升级到 0.6.0 时也运行上面的命令。它指定版本并使用 npm 官方源。若遇到 `ERR_PNPM_ADDING_TO_ROOT`，在 `add` 后加 `-w`。
+从旧版升级到 0.7.0 时也运行上面的命令。它指定版本并使用 npm 官方源。若遇到 `ERR_PNPM_ADDING_TO_ROOT`，在 `add` 后加 `-w`。
 
 ## 使用液态玻璃
 
