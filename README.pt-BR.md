@@ -40,7 +40,7 @@ Para atualizar para 0.7.0, execute o mesmo comando. Ele especifica a versão e u
 
 1. Escolha **Regular**, **Clear** ou **Frost** e ajuste a transparência da interface entre 3% e 95%.
 2. Em **Background**, escolha uma imagem local, um link de imagem ou um vídeo local MP4/WebM de até 100 MiB. O navegador precisa oferecer suporte ao codec. No seletor de fundo principal, confira a prévia e clique em **Save**. Os vídeos se repetem sem som e podem ser pausados.
-3. Em **Background**, use **Add images** para selecionar várias fotos. Clique em uma miniatura para aplicar o fundo ou use o botão de substituição. Em **Rotation settings**, ajuste a ordem e o momento da troca. O DSH avalia a rotação ao ser aberto.
+3. Em **Background**, use **Add images or video** para selecionar várias fotos. Clique em uma miniatura para aplicar o fundo ou use o botão de substituição. Em **Rotation settings**, ajuste a ordem e o momento da troca. O DSH avalia a rotação ao ser aberto.
 4. Abra **Advanced settings** para configurar separadamente os modos claro e escuro e ajustar a proteção de leitura, a tonalidade, o desfoque dos menus, o enquadramento, a posição, o brilho e o escurecimento. Você também pode exibir um quadro estático do vídeo.
 
 ## Captura de tela

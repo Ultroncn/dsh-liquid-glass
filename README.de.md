@@ -40,7 +40,7 @@ Zum Update auf 0.7.0 führst du denselben Befehl aus. Er gibt die Version vor un
 
 1. Wähle **Regular**, **Clear** oder **Frost** und stelle die Transparenz der Oberfläche zwischen 3 % und 95 % ein.
 2. Wähle unter **Background** ein lokales Bild, eine Bild-URL oder ein lokales MP4-/WebM-Video bis 100 MiB. Der Browser muss den Videocodec unterstützen. Prüfe die Vorschau im Hauptbereich und klicke dann auf **Save**. Das Video läuft ohne Ton in einer Schleife und lässt sich anhalten.
-3. Wähle unter **Background** mit **Add images** mehrere Fotos gleichzeitig. Klicke auf ein Vorschaubild, um es zu verwenden, oder nutze die Schaltfläche zum Ersetzen. Unter **Rotation settings** legst du Reihenfolge und Zeitpunkt fest. DSH prüft beim Start, ob der Hintergrund gewechselt wird.
+3. Wähle unter **Background** mit **Add images or video** mehrere Fotos gleichzeitig. Klicke auf ein Vorschaubild, um es zu verwenden, oder nutze die Schaltfläche zum Ersetzen. Unter **Rotation settings** legst du Reihenfolge und Zeitpunkt fest. DSH prüft beim Start, ob der Hintergrund gewechselt wird.
 4. In **Advanced settings** findest du separate Stile für hell und dunkel, Leseschutz, Farbton, Menüunschärfe, Skalierung, Position, Helligkeit und Abdunklung. Für Videos kannst du ein Standbild wählen.
 
 ## Bildschirmfoto

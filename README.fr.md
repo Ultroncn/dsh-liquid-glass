@@ -40,7 +40,7 @@ Pour passer à la version 0.7.0, exécutez la même commande. Elle fixe la versi
 
 1. Choisissez **Regular**, **Clear** ou **Frost**, puis ajustez la transparence de l’interface entre 3 % et 95 %.
 2. Dans **Background**, choisissez une image locale, une URL d’image ou une vidéo MP4/WebM locale de 100 MiB maximum. Le navigateur doit prendre en charge le codec. Dans le sélecteur principal, prévisualisez le fond puis cliquez sur **Save**. Les vidéos tournent en boucle sans son et peuvent être mises en pause.
-3. Dans **Background**, cliquez sur **Add images** pour sélectionner plusieurs photos. Cliquez sur une vignette pour l’appliquer ou utilisez le bouton de remplacement. **Rotation settings** règle l’ordre et le moment du changement. La rotation est évaluée à l’ouverture de DSH.
+3. Dans **Background**, cliquez sur **Add images or video** pour sélectionner plusieurs photos. Cliquez sur une vignette pour l’appliquer ou utilisez le bouton de remplacement. **Rotation settings** règle l’ordre et le moment du changement. La rotation est évaluée à l’ouverture de DSH.
 4. Ouvrez **Advanced settings** pour régler les modes clair et sombre séparément, la lisibilité, la teinte, le flou des menus, le cadrage, la position, la luminosité, l’assombrissement et l’affichage d’une image fixe tirée de la vidéo.
 
 ## Aperçu
