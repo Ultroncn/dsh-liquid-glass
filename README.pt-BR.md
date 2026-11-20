@@ -22,19 +22,19 @@
 
 O Liquid Glass adiciona superfícies translúcidas e fundos com imagens ou vídeos ao [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). É um plugin mantido pela comunidade.
 
-> **Versão 0.7.0.** Adicione imagens por link à galeria de fundos. Links e uploads locais compartilham seis vagas. Os cartões de fundo têm o mesmo tamanho que os cartões de material e exibem as ações de substituir e excluir ao passar o cursor. Consulte o [histórico de alterações](CHANGELOG.md) para ver os outros ajustes de layout.
+> **Versão 0.7.1.** O botão para avançar para o próximo fundo mantém a cor de fundo visível. O cartão de envio informa que é possível selecionar várias imagens ou um vídeo por vez. Consulte o [histórico de alterações](CHANGELOG.md).
 
 ## Instalação e acesso
 
-Procure por `dsh-liquid-glass` no catálogo de plugins do DSH e confira se o autor é **Ultroncn**. No campo de adição de plugins do aplicativo, digite `dsh-liquid-glass@0.7.0`. Ao usar o terminal, substitua `web` pelo perfil em que você executa o DSH.
+Procure por `dsh-liquid-glass` no catálogo de plugins do DSH e confira se o autor é **Ultroncn**. No campo de adição de plugins do aplicativo, digite `dsh-liquid-glass@0.7.1`. Ao usar o terminal, substitua `web` pelo perfil em que você executa o DSH.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.1 --registry=https://registry.npmjs.org/
 ```
 
 Reinicie o DSH após instalar ou atualizar. Abra **Settings → General → Theme background** (**设置 → 通用 → 主题背景**), logo abaixo de **Appearance**. O interruptor principal controla o efeito de vidro e o fundo em conjunto. Suas preferências ficam salvas ao desativá-lo.
 
-Para atualizar para 0.7.0, execute o mesmo comando. Ele especifica a versão e usa o registro oficial do npm. Se aparecer `ERR_PNPM_ADDING_TO_ROOT`, adicione `-w` depois de `add`.
+Para atualizar para 0.7.1, execute o mesmo comando. Ele especifica a versão e usa o registro oficial do npm. Se aparecer `ERR_PNPM_ADDING_TO_ROOT`, adicione `-w` depois de `add`.
 
 ## Como usar
 

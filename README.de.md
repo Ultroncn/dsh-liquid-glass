@@ -22,19 +22,19 @@
 
 Liquid Glass ergänzt [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) um einstellbare Glasflächen und Hintergründe aus Bildern oder Videos. Das Plugin wird von der Community gepflegt.
 
-> **Version 0.7.0.** Bilder lassen sich per Link zur Hintergrundgalerie hinzufügen. Links und lokale Uploads teilen sich sechs Plätze. Die Hintergrundkarten sind so groß wie die Materialkarten und zeigen beim Darüberfahren Aktionen zum Ersetzen und Löschen. Weitere Layoutkorrekturen stehen im [Änderungsprotokoll](CHANGELOG.md).
+> **Version 0.7.1.** Die Schaltfläche für das nächste Hintergrundbild hat einen dauerhaft sichtbaren Hintergrund. Die Upload-Karte erklärt, dass mehrere Bilder oder jeweils ein Video ausgewählt werden können. Siehe [Änderungsprotokoll](CHANGELOG.md).
 
 ## Installieren und öffnen
 
-Suche im DSH-Plugin-Marktplatz nach `dsh-liquid-glass` und prüfe, ob **Ultroncn** als Autor angegeben ist. Gib im Eingabefeld zum Hinzufügen von Plugins `dsh-liquid-glass@0.7.0` ein. Ersetze bei der Installation im Terminal `web` durch dein DSH-Profil.
+Suche im DSH-Plugin-Marktplatz nach `dsh-liquid-glass` und prüfe, ob **Ultroncn** als Autor angegeben ist. Gib im Eingabefeld zum Hinzufügen von Plugins `dsh-liquid-glass@0.7.1` ein. Ersetze bei der Installation im Terminal `web` durch dein DSH-Profil.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.1 --registry=https://registry.npmjs.org/
 ```
 
 Starte DSH nach der Installation oder Aktualisierung neu. Öffne **Settings → General → Theme background** (**设置 → 通用 → 主题背景**) unterhalb von **Appearance**. Der Hauptschalter steuert den Glaseffekt und den Hintergrund gemeinsam. Deine Einstellungen bleiben beim Ausschalten gespeichert.
 
-Zum Update auf 0.7.0 führst du denselben Befehl aus. Er gibt die Version vor und nutzt die offizielle npm-Registry. Bei `ERR_PNPM_ADDING_TO_ROOT` füge nach `add` die Option `-w` ein.
+Zum Update auf 0.7.1 führst du denselben Befehl aus. Er gibt die Version vor und nutzt die offizielle npm-Registry. Bei `ERR_PNPM_ADDING_TO_ROOT` füge nach `add` die Option `-w` ein.
 
 ## Bedienung
 
