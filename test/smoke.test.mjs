@@ -1453,8 +1453,14 @@ if (linkToggle(drawLinkGallery())) {
   const linkAlert = text => !!findNode(linkForm(drawLinkGallery()), node => node.props?.role === 'alert' && node.props.children === t(text));
 
   linkToggle(drawLinkGallery()).props.onClick();
-  assert(findNode(linkForm(drawLinkGallery()), node => node.type === officialUI.Button && node.props.type === 'submit'),
-    'the Add button and Enter use the same form submit event');
+  const openLinkForm = linkForm(drawLinkGallery());
+  const submitButton = findNode(openLinkForm, node => node.type === officialUI.Button && node.props.type === 'submit');
+  assert(!!submitButton, 'the Add button and Enter use the same form submit event');
+  const linkField = findNode(openLinkForm, node => node.type === officialUI.Input);
+  const inputSlot = findNode(openLinkForm, node => node.props?.children === linkField);
+  assert(inputSlot.props.style.gridTemplateColumns === 'minmax(0, 1fr)' && inputSlot.props.style.flex === 1
+    && linkField.props.style.width === '100%' && submitButton.props.style.flexShrink === 0,
+    'the URL field fills the flexible space without shrinking the Add button');
   changeLink('https://');
   submitLink();
   assert(linkAlert('wallpaper.invalidUrl') && linkInputValue() === 'https://', 'invalid URLs keep the input and show an error without adding an item');
