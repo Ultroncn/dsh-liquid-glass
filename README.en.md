@@ -22,21 +22,21 @@
 
 Liquid Glass adds adjustable glass surfaces and image or video backgrounds to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH). It is maintained by the community.
 
-> **Version 0.7.0** adds image links to the background gallery. Links and local uploads share six slots. Background cards match the material cards in size and show replace and delete on hover. See the [changelog](CHANGELOG.md) for the rotation and Advanced settings layout fixes.
+> **Version 0.7.1** keeps the background of the Next wallpaper button visible and clarifies that the upload card takes multiple images or one video at a time. See the [changelog](CHANGELOG.md).
 
 ## Install and open
 
-Search for `dsh-liquid-glass` in the DSH plugin market and check the author **Ultroncn**. In the app’s **Add plugin** field, enter `dsh-liquid-glass@0.7.0`.
+Search for `dsh-liquid-glass` in the DSH plugin market and check the author **Ultroncn**. In the app’s **Add plugin** field, enter `dsh-liquid-glass@0.7.1`.
 
 For the CLI, use the profile your DSH instance runs under. The examples use `web`.
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.1 --registry=https://registry.npmjs.org/
 ```
 
 Restart DSH after installing or updating. Open **Settings → General → Theme background**, just below **Appearance**, and expand the row. The switch applies the glass and background effects together and retains your preferences.
 
-Run the same command to upgrade to 0.7.0. It pins the version and uses the official npm registry. If pnpm reports `ERR_PNPM_ADDING_TO_ROOT`, add `-w` after `add`.
+Run the same command to upgrade to 0.7.1. It pins the version and uses the official npm registry. If pnpm reports `ERR_PNPM_ADDING_TO_ROOT`, add `-w` after `add`.
 
 ## Use Liquid Glass
 

@@ -22,19 +22,19 @@
 
 Liquid Glass は [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）の画面に、透明度を調整できるガラス効果と画像・動画の背景を追加するコミュニティ製プラグインです。
 
-> **バージョン 0.7.0** では、画像リンクを背景ギャラリーに追加できます。リンクとローカル画像で最大 6 件の枠を共有します。背景カードは素材カードと同じ大きさで、マウスを重ねると置き換えと削除の操作が表示されます。レイアウトの修正は[変更履歴](CHANGELOG.md)を参照してください。
+> **バージョン 0.7.1** では、次の壁紙に切り替えるボタンの背景色を常に表示します。アップロードカードには、複数の画像または一度に 1 本の動画を選べることを表示します。詳しくは[変更履歴](CHANGELOG.md)を参照してください。
 
 ## インストールと起動
 
-DSH のプラグインマーケットで `dsh-liquid-glass` を検索し、作者が **Ultroncn** であることを確認します。アプリのプラグイン追加欄には `dsh-liquid-glass@0.7.0` と入力します。CLI の例では `web` プロファイルを使っています。実際のプロファイル名に置き換えてください。
+DSH のプラグインマーケットで `dsh-liquid-glass` を検索し、作者が **Ultroncn** であることを確認します。アプリのプラグイン追加欄には `dsh-liquid-glass@0.7.1` と入力します。CLI の例では `web` プロファイルを使っています。実際のプロファイル名に置き換えてください。
 
 ```sh
-dsh plugin --profile web add dsh-liquid-glass@0.7.0 --registry=https://registry.npmjs.org/
+dsh plugin --profile web add dsh-liquid-glass@0.7.1 --registry=https://registry.npmjs.org/
 ```
 
 インストールや更新のあとに DSH を再起動し、**Settings → General → Theme background**（**设置 → 通用 → 主题背景**）を開きます。メインスイッチでガラス効果と背景をまとめて切り替えます。オフにしても設定は保持されます。
 
-0.7.0 に更新するときも同じコマンドを実行します。バージョンを指定し、公式の npm レジストリを利用します。`ERR_PNPM_ADDING_TO_ROOT` が出た場合は、`add` のあとに `-w` を追加します。
+0.7.1 に更新するときも同じコマンドを実行します。バージョンを指定し、公式の npm レジストリを利用します。`ERR_PNPM_ADDING_TO_ROOT` が出た場合は、`add` のあとに `-w` を追加します。
 
 ## 使い方
 

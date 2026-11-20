@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.1 — 2026-11-20
+
+### 中文
+
+- 「下一张」按钮在非悬停状态也显示底色，并适配浅色和深色主题。
+- 上传卡片改为「添加图片或视频」，说明图片可以多选、视频一次选择一个。
+
+### English
+
+- Keep the Next wallpaper button filled when idle in both light and dark appearance.
+- Label the gallery picker “Add images or video” and explain that users can select multiple images or one video at a time.
+
 ## 0.7.0 — 2026-11-20
 
 ### 中文
