@@ -1249,6 +1249,10 @@ assert(!!uploadTile(rotationTree), 'the upload card stays visible alongside exis
 const strip = findNode(rotationTree, node => node.props?.['data-liquid-glass-wallpaper-strip'] === '');
 assert(strip?.props.style.overflowX === 'auto' && strip.props.style.flexWrap === 'nowrap'
   && strip.props.children.every(tile => tile.props.style.flexShrink === 0), 'thumbnails keep their width in one horizontally scrolling strip');
+const columnWidth = `calc((100% - ${2 * Number.parseFloat(strip.props.style.gap)}px) / 3)`;
+assert(strip.props.children.every(tile => tile.props.style.width === columnWidth
+  && tile.props.style.height === cards[0].props.style.height
+  && tile.props.style.boxSizing === 'border-box'), 'gallery cards use a material grid column and share the material card height');
 assert(findAll(strip, node => node.type === 'img' && node.props.src === currentStore.getSnapshot().wallpaper).length === 1,
   'the selected gallery image is shown only once');
 const selectFirst = findNode(rotationTree, node => node.type === officialUI.Button && node.props['aria-label'] === `${t('rotation.select')} 1`);
