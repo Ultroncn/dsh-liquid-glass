@@ -1430,6 +1430,19 @@ const drawLinkGallery = mountComponent(linkGallerySpec.type, () => {
 });
 const linkToggle = tree => findNode(tree, node => node.type === officialUI.Button && node.props['aria-label'] === t('wallpaper.link'));
 const linkForm = tree => findNode(tree, node => node.type === 'form' && node.props['data-background-link-form'] === '');
+const capacityRow = tree => findNode(tree, node => node.props?.['data-background-link-row'] === '');
+const capacityStatus = tree => findNode(capacityRow(tree), node => node.props?.role === 'status');
+const emptyLinkGallery = drawLinkGallery();
+assert(capacityRow(emptyLinkGallery)?.props.children[0] === capacityStatus(emptyLinkGallery)
+  && capacityRow(emptyLinkGallery)?.props.children[1] === linkToggle(emptyLinkGallery),
+  'the count appears before the link action directly under the gallery');
+const [addedText, countText, upperLimit, remainingText] = capacityStatus(emptyLinkGallery).props.children;
+assert(addedText.trim() === t('rotation.added') && countText.props.children === 0
+  && upperLimit === '/6 · ' && remainingText === t('rotation.remaining').replace('{count}', 6),
+  'the empty gallery reports zero added, its maximum, and all remaining slots');
+assert(countText.props.style.color === 'var(--dsw-alias-label-primary)'
+  && capacityStatus(emptyLinkGallery).props.style.color === 'var(--dsw-alias-label-secondary)',
+  'the used count and capacity details use separate host text colors');
 assert(!!linkToggle(drawLinkGallery()) && !linkForm(drawLinkGallery()), 'the link entry is available with its form initially collapsed');
 if (linkToggle(drawLinkGallery())) {
   const firstLink = 'https://example.com/background-one.png';
@@ -1483,9 +1496,13 @@ if (linkToggle(drawLinkGallery())) {
     'the shared save action enforces the limit even if a slot fills while a link is loading');
   assert(linkToggle(drawLinkGallery())?.props.disabled && !uploadTile(drawLinkGallery()) && !linkForm(drawLinkGallery()),
     'the link entry stays visible but disabled at capacity and the upload tile is hidden');
+  assert(capacityStatus(drawLinkGallery()).props.children.at(-1) === t('rotation.capacityFull'),
+    'the capacity status explains why the visible link entry is unavailable');
   const deleteLast = findNode(drawLinkGallery(), node => node.type === officialUI.Button && node.props['aria-label'] === `${t('rotation.remove')} 6`);
   deleteLast.props.onClick();
   assert(linkToggle(drawLinkGallery())?.props.disabled === false && !!uploadTile(drawLinkGallery()), 'removing an item restores both add entry points');
+  assert(capacityStatus(drawLinkGallery()).props.children.at(-1) === t('rotation.remaining').replace('{count}', 1),
+    'the capacity status immediately reflects the remaining slot after deletion');
 }
 drawLinkGallery.unmount();
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
