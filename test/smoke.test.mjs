@@ -1218,13 +1218,20 @@ let uiRow = mountRow();
 const configureExpander = findNode(uiRow, (node) => node.type?.name === 'Expander' && node.props.label === t('row.configure'));
 if (configureExpander && !configureExpander.props.open) { configureExpander.props.onClick(); uiRow = mountRow(); }
 const drawRotation = () => {
-  const node = findNode(mountRow(), (n) => n.type?.name === 'RotationSection');
+	const wallpaper = findNode(mountRow(), (n) => n.type?.name === 'WallpaperSection');
+	const editor = mountComponent(wallpaper.type, () => wallpaper.props)();
+	const node = findNode(editor, (n) => n.type?.name === 'RotationSection');
   if (!node) throw new Error('RotationSection is missing from the settings row');
   return mountComponent(node.type, () => ({ ...node.props, rotation: currentStore.getSnapshot().rotation, wallpaper: currentStore.getSnapshot().wallpaper, video: currentStore.getSnapshot().video }))();
 };
 let rotationTree = drawRotation();
 const multiInput = findNode(rotationTree, node => node.type === 'input' && node.props.multiple === true);
 assert(multiInput?.props['aria-label'] === t('rotation.addImages'), 'background settings have a direct multi-image file picker');
+const uploadTile = tree => findNode(
+  findNode(tree, node => node.props?.['data-liquid-glass-wallpaper-strip'] === ''),
+  node => node.type === officialUI.Button && node.props['aria-label'] === t('rotation.addImages'),
+);
+assert(!!uploadTile(rotationTree), 'an empty gallery keeps the upload card in the scrolling row');
 assert(!findNode(rotationTree, node => node.type === 'details'), 'an empty pool hides the rotation settings');
 const addButton = () => findNode(drawRotation(), node => node.type === officialUI.Button && node.props.children === t('rotation.addCurrent'));
 assert(!!addButton(), 'the first saved background can join the pool');
@@ -1238,9 +1245,12 @@ addButton().props.onClick();
 currentActions.setRotationEnabled(true);
 assert(currentStore.getSnapshot().rotation.items.length === 2, 'add-current retains both saved backgrounds');
 rotationTree = drawRotation();
+assert(!!uploadTile(rotationTree), 'the upload card stays visible alongside existing backgrounds');
 const strip = findNode(rotationTree, node => node.props?.['data-liquid-glass-wallpaper-strip'] === '');
 assert(strip?.props.style.overflowX === 'auto' && strip.props.style.flexWrap === 'nowrap'
   && strip.props.children.every(tile => tile.props.style.flexShrink === 0), 'thumbnails keep their width in one horizontally scrolling strip');
+assert(findAll(strip, node => node.type === 'img' && node.props.src === currentStore.getSnapshot().wallpaper).length === 1,
+  'the selected gallery image is shown only once');
 const selectFirst = findNode(rotationTree, node => node.type === officialUI.Button && node.props['aria-label'] === `${t('rotation.select')} 1`);
 selectFirst.props.onClick();
 assert(currentStore.getSnapshot().wallpaper === 'data:image/png;base64,ui-a' && currentStore.getSnapshot().rotation.index === 0,
@@ -1279,9 +1289,9 @@ const thumbnail = drawThumbnail();
 assert(thumbnail.type === 'video' && thumbnail.props.src.startsWith('blob:')
   && (await (await fetch(thumbnail.props.src)).text()) === await videoFile.text()
   && thumbnail.props.muted && thumbnail.props.playsInline && thumbnail.props.preload === 'metadata'
-  && thumbnail.props.style.width === '64px' && thumbnail.props.style.height === '40px'
-  && thumbnail.props.style.objectFit === 'cover' && thumbnail.props.style.borderRadius === '6px',
-  'a pooled video Blob renders a muted inline 64×40 cover thumbnail');
+  && thumbnail.props.style.width === '100%' && thumbnail.props.style.height === '100%'
+  && thumbnail.props.style.objectFit === 'cover',
+  'a pooled video Blob renders a muted inline cover preview');
 drawThumbnail.unmount();
 assert(revokedVideoURLs.includes(thumbnail.props.src), 'unmounting a pool thumbnail revokes its Blob URL');
 
@@ -1296,7 +1306,7 @@ drawMissingThumbnail();
 await flushVideo();
 const missingThumbnail = drawMissingThumbnail();
 assert(missingThumbnail.type === 'div' && missingThumbnail.props.children === t('rotation.video')
-  && missingThumbnail.props.style.width === '64px' && missingThumbnail.props.style.height === '40px',
+  && missingThumbnail.props.style.width === '100%' && missingThumbnail.props.style.height === '100%',
   'a pooled video with no Blob falls back to the video placeholder');
 drawMissingThumbnail.unmount();
 effectCleanups.filter(({ label }) => label === 'liquid-glass: cleanup').at(-1).cleanup();
@@ -1347,6 +1357,9 @@ assert(currentActions.addRotationImages(fullGallery) === true
   && currentStore.getSnapshot().rotation.items.every((item, i) => item.url === fullGallery[i])
   && currentStore.getSnapshot().rotation.items.length === 6
   && currentStore.getSnapshot().wallpaper === unpooledWallpaper, 'the first batch can fill all six slots without replacing the current wallpaper');
+assert(!uploadTile(drawRotation()), 'a full gallery hides the upload card');
+assert(currentActions.removeRotationItem(currentStore.getSnapshot().rotation.items[5].id) === true
+  && !!uploadTile(drawRotation()), 'removing a gallery item makes the upload card available again');
 assert(!currentActions.exportAppearance && !currentActions.importAppearance && !currentActions.previewAppearanceImport,
   'the appearance backup actions are removed');
 let compactRow = mountRow();
@@ -1354,8 +1367,9 @@ const compactExpander = findNode(compactRow, node => node.type?.name === 'Expand
 if (!compactExpander.props.open) compactExpander.props.onClick();
 compactRow = mountRow();
 const backgroundGroup = findNode(compactRow, node => node.props?.['aria-label'] === t('wallpaper.title') && node.props?.role === 'group');
-assert(backgroundGroup && findNode(backgroundGroup, node => node.type?.name === 'WallpaperSection')
-  && findNode(backgroundGroup, node => node.type?.name === 'RotationSection'), 'the photo library is inside the background group');
+const galleryEditor = findNode(backgroundGroup, node => node.type?.name === 'WallpaperSection');
+assert(galleryEditor && findNode(mountComponent(galleryEditor.type, () => galleryEditor.props)(), node => node.type?.name === 'RotationSection'),
+  'the photo library is inside the background editor under its heading');
 const advancedExpander = findNode(compactRow, node => node.type?.name === 'Expander' && node.props.label === t('row.advanced'));
 if (!advancedExpander.props.open) advancedExpander.props.onClick();
 const advancedPanel = findNode(mountRow(), node => node.props?.id === advancedExpander.props.controls);
